@@ -1,0 +1,1374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grift</title>
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Grift">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22ggf%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23FF2D8A%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%238F5BFF%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath%20d%3D%22M14%203%20H61%20Q63%203%2062.5%205%20L52%2059%20Q51.6%2061%2049.5%2061%20H3%20Q1%2061%201.5%2059%20L12%205%20Q12.4%203%2014%203Z%22%20fill%3D%22url%28%23ggf%29%22/%3E%3Cg%20transform%3D%22translate%289.5%203.5%29%20scale%28.86%29%20skewX%28-10%29%22%3E%3Cpath%20d%3D%22M45.5%2017.5%20A19.5%2019.5%200%201%200%2051.5%2031%22%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%227.5%22%20stroke-linecap%3D%22round%22/%3E%3Crect%20x%3D%2231%22%20y%3D%2235%22%20width%3D%225%22%20height%3D%226%22%20rx%3D%221%22%20fill%3D%22%23fff%22/%3E%3Crect%20x%3D%2238%22%20y%3D%2226%22%20width%3D%225%22%20height%3D%2215%22%20rx%3D%221%22%20fill%3D%22%23fff%22/%3E%3Crect%20x%3D%2245%22%20y%3D%2231%22%20width%3D%226%22%20height%3D%2210%22%20rx%3D%221%22%20fill%3D%22%23fff%22/%3E%3C/g%3E%3C/svg%3E">
+<style>
+:root{--brand:#C23CFF;--brand-a:#FF2D8A;--brand-b:#8F5BFF;--brand-grad:linear-gradient(100deg,var(--brand-a),var(--brand-b));--bg:#000;--panel:#111;--line:#333;--fg:#fff;--dim:#9a9a9a;--ok:#2ee66b;--warn:#ffd21f;--bad:#ff4d4d;--acc:#3fa9ff;--low:#4fc3ff}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.35 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}
+body{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom)}
+button,.btn,.tab{touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+input[type=number],input[type=text],select{font-size:16px}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+#modal.on{display:flex}
+#modal .box{background:var(--panel);border:2px solid var(--brand-b);border-radius:14px;padding:20px;max-width:420px;width:100%}
+#modal .msg{font-size:20px;font-weight:800;margin-bottom:16px}
+#modal .row{justify-content:flex-end}
+#iosHint{display:none}#iosHint.on{display:block}
+button,input,select{font:inherit}
+header{border-image:var(--brand-grad) 1;display:flex;gap:8px;align-items:center;flex-wrap:nowrap!important;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;border-width:0 0 3px;border-style:solid;position:sticky;top:0;background:var(--bg);z-index:5;flex-wrap:wrap}
+header .tab{background:var(--panel);color:var(--fg);border:1px solid var(--line);padding:10px 14px;border-radius:8px;font-weight:700}
+header .tab.on{background:var(--brand-grad);border-color:transparent;color:#fff;font-style:italic}
+.brand{display:flex;align-items:center;gap:10px;margin-right:10px;text-decoration:none}
+.brand svg{width:44px;height:44px;flex:none}
+.brand .wm{font-weight:900;font-style:italic;font-size:30px;letter-spacing:-.01em;line-height:1;transform:skewX(-8deg);background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:6px}
+.brand .tag{font-weight:800;font-style:italic;font-size:9px;letter-spacing:.2em;color:#fff;margin-top:3px}
+#doneCard{display:none;text-align:center;padding:24px;border:2px solid var(--brand-b);border-radius:14px;margin:10px 0}
+#doneCard.on{display:block}
+#doneCard svg{width:64px;height:64px}
+#doneCard .dtitle{font-style:italic;font-size:clamp(22px,4vw,40px);font-weight:900;margin:8px 0}
+@media (max-width:560px){.brand .tag{display:none}}
+#connBadge{margin-left:auto;font-weight:800;padding:8px 12px;border-radius:8px;border:2px solid var(--line);flex:0 1 auto;min-width:0;max-width:30vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#tabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex:0 1 auto;min-width:0}
+#tabs::-webkit-scrollbar{display:none}
+header .tab{white-space:nowrap}
+@media (max-width:1100px){.brand .tag{display:none}}
+@media (max-width:900px){header .tab .n{display:none}}
+#connBadge.ok{border-color:var(--ok);color:var(--ok)}#connBadge.bad{border-color:var(--bad);color:var(--bad)}#connBadge.warn{border-color:var(--warn);color:var(--warn)}
+main{padding:12px 16px;max-width:1400px;margin:0 auto}
+section{display:none}section.on{display:block}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.card h2{margin:0 0 10px;font-size:18px}
+.btn{background:#222;color:var(--fg);border:2px solid #555;border-radius:10px;padding:12px 18px;font-weight:800;cursor:pointer}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn.pri{background:var(--brand-grad);color:#fff;border-color:transparent;font-style:italic}
+.btn.go{background:var(--ok);color:#000;border-color:var(--ok)}
+.btn.stop{background:var(--bad);color:#000;border-color:var(--bad)}
+.btn.sm{padding:6px 10px;font-size:14px;border-width:1px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input[type=number],input[type=text],select{background:#000;color:var(--fg);border:1px solid #555;border-radius:8px;padding:8px;min-width:0}
+input[type=number]{width:90px}
+label{color:var(--dim)}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;font-size:15px}
+.kv b{color:var(--dim);font-weight:600}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:13px;font-weight:800;border:1px solid}
+.pill.ok{color:var(--ok);border-color:var(--ok)}.pill.bad{color:var(--bad);border-color:var(--bad)}.pill.warn{color:var(--warn);border-color:var(--warn)}
+#log{background:#000;border:1px solid var(--line);border-radius:8px;height:180px;overflow:auto;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:8px;white-space:pre-wrap}
+.tele{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.metric{background:#000;border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+.metric .l{color:var(--dim);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.metric .v{font-size:44px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.05}
+table{border-collapse:collapse;width:100%;font-size:14px}
+td,th{border-bottom:1px solid var(--line);padding:6px;text-align:left}
+th{color:var(--dim)}
+/* Ride screen */
+#ride .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+#ride .big{background:#000;border:2px solid var(--line);border-radius:14px;padding:8px 10px;text-align:center;min-width:0;overflow:hidden}
+#ride .big .v{white-space:nowrap}
+#ride .big .l{color:var(--dim);font-weight:800;letter-spacing:.08em;font-size:clamp(12px,1.6vw,18px);text-transform:uppercase}
+#ride .big .v{font-weight:900;font-variant-numeric:tabular-nums;line-height:1;font-size:clamp(40px,9vw,120px)}
+#ride .big.xl{grid-column:span 2}
+#ride .big.xl .v{font-size:clamp(64px,16vw,200px)}
+#ride .big .s{color:var(--dim);font-size:clamp(13px,1.6vw,20px);font-weight:700;min-height:1.3em}
+#segName{font-size:clamp(20px,3.4vw,40px);font-weight:900;text-align:center;margin:6px 0}
+#nextLine{font-size:clamp(16px,2.4vw,28px);font-weight:800;color:var(--dim);text-align:center}
+#alertBar{display:none;font-weight:900;font-size:clamp(18px,3vw,32px);text-align:center;padding:10px;border-radius:10px;margin-bottom:10px}
+#alertBar.on{display:block}
+#alertBar.bad{background:var(--bad);color:#000}#alertBar.warn{background:var(--warn);color:#000}
+#profile{width:100%;height:110px;display:block;background:#000;border:1px solid var(--line);border-radius:10px;margin:10px 0}
+#rideCtl{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+#rideCtl .btn{padding:20px 10px;font-size:clamp(16px,2.4vw,26px)}
+.c-ok{color:var(--ok)}.c-low{color:var(--low)}.c-high{color:var(--bad)}.c-warn{color:var(--warn)}.c-dim{color:var(--dim)}
+/* Builder */
+.blk{border:1px solid var(--line);border-left:6px solid #555;border-radius:10px;padding:10px;margin:8px 0;background:#000}
+.blk.warmup,.blk.cooldown{border-left-color:var(--acc)}.blk.steady{border-left-color:var(--ok)}.blk.interval{border-left-color:var(--bad)}.blk.recovery{border-left-color:#888}.blk.repeat{border-left-color:var(--warn)}
+.blk .blk{margin-left:8px}
+.muted{color:var(--dim);font-size:14px}
+@media (max-width:760px){#ride .grid{grid-template-columns:repeat(2,1fr)}.tele{grid-template-columns:repeat(2,1fr)}#rideCtl{grid-template-columns:repeat(2,1fr)}}
+/* Phones: one-row header with scrolling tabs */
+@media (max-width:640px){
+  header{flex-wrap:nowrap;gap:6px;padding-left:10px;padding-right:10px}
+  .brand{margin-right:2px;gap:6px}.brand svg{width:34px;height:34px}.brand .wm{display:none}
+  #tabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex:1;min-width:0}
+  #tabs::-webkit-scrollbar{display:none}
+  header .tab{padding:9px 11px;white-space:nowrap;font-size:15px}
+  header .tab .n{display:none}
+  #connBadge{padding:7px 8px;font-size:12px;max-width:34vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  main{padding:10px 12px}
+  #ride .big{padding:6px}
+  #rideCtl .btn{padding:16px 8px}
+}
+/* Phone portrait while riding: power + target side by side, biggest numbers first */
+@media (max-width:640px) and (orientation:portrait){
+  body.riding #ride .big.xl{grid-column:span 1}
+  body.riding #ride .big.xl .v{font-size:clamp(56px,19vw,120px)}
+  body.riding #ride .big .v{font-size:clamp(40px,13vw,90px)}
+  body.riding #ride #rSegLeftBox{grid-column:span 2;order:1}
+  body.riding #ride .grid>.big:not(.xl){order:2}
+  body.riding #profile{height:70px}
+}
+/* Phone landscape: everything on one screen */
+@media (max-height:500px) and (orientation:landscape){
+  header{padding-top:calc(4px + env(safe-area-inset-top));padding-bottom:4px}
+  .brand svg{width:30px;height:30px}.brand .wm{font-size:22px}
+  header .tab{padding:6px 10px}header .tab .n{display:none}
+  body.riding #ride .grid{grid-template-columns:repeat(5,1fr);gap:6px}
+  body.riding #ride .big.xl{grid-column:span 1}
+  body.riding #ride .big .v,body.riding #ride .big.xl .v{font-size:clamp(34px,8.5vw,84px)}
+  body.riding #ride .big .s{font-size:12px}
+  body.riding #segName{font-size:20px;margin:2px 0}
+  body.riding #nextLine{font-size:16px;margin-top:4px!important}
+  body.riding #profile{height:44px;margin:6px 0}
+  body.riding #rideCtl .btn{padding:10px 6px;font-size:16px}
+  body.riding #rideFoot{display:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand" aria-label="Grift"><svg viewBox="0 0 64 64" role="img" aria-label="Grift logo"><defs><linearGradient id="gga" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF2D8A"/><stop offset="1" stop-color="#8F5BFF"/></linearGradient></defs><path d="M14 3 H61 Q63 3 62.5 5 L52 59 Q51.6 61 49.5 61 H3 Q1 61 1.5 59 L12 5 Q12.4 3 14 3Z" fill="url(#gga)"/><g transform="translate(9.5 3.5) scale(.86) skewX(-10)"><path d="M45.5 17.5 A19.5 19.5 0 1 0 51.5 31" fill="none" stroke="#fff" stroke-width="7.5" stroke-linecap="round"/><rect x="31" y="35" width="5" height="6" rx="1" fill="#fff"/><rect x="38" y="26" width="5" height="15" rx="1" fill="#fff"/><rect x="45" y="31" width="6" height="10" rx="1" fill="#fff"/></g></svg><div><div class="wm">GRIFT</div><div class="tag">POWER · INTERVALS · NOTHING ELSE</div></div></div>
+  <nav id="tabs">
+  <button class="tab on" data-tab="setup"><span class="n">1 · </span>Bike<span class="n"> &amp; Test</span></button>
+  <button class="tab" data-tab="ride"><span class="n">2 · </span>Ride</button>
+  <button class="tab" data-tab="build"><span class="n">3 · </span>Workouts</button>
+  <button class="tab" data-tab="hist"><span class="n">4 · </span>History</button>
+  </nav>
+  <div id="connBadge" class="bad">NOT CONNECTED</div>
+</header>
+<main>
+
+<!-- ================= SETUP / HARDWARE TEST ================= -->
+<section id="setup" class="on">
+  <div class="card" id="supportCard">
+    <h2>Step 1 · Connect</h2>
+    <div class="row">
+      <button class="btn pri" id="btnConnect">Connect Wattbike Atom</button>
+      <button class="btn" id="btnDisconnect" disabled>Disconnect</button>
+      <label><input type="checkbox" id="showAll"> Show all Bluetooth devices (if the Atom isn't listed)</label>
+    </div>
+    <p class="muted">Close MyWhoosh, Zwift and the Wattbike Hub app on every device first. On the Next Gen Atom with dual Bluetooth, the <b>last</b> app to connect gets control; anything else connected can block or steal ERG.</p>
+    <div id="btSupport" class="muted"></div>
+    <div id="iosHint" class="muted" style="margin-top:8px">
+      <b>iPhone / iPad checklist:</b> keep Grift on screen during rides (switching apps or locking the phone pauses the workout); set <i>Settings → Display &amp; Brightness → Auto-Lock</i> to <i>Never</i> while riding; turn the ring/silent switch off if you want interval beeps; in Bluefy you can add Grift to your Home Screen from its menu.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Step 1b · What the bike reports</h2>
+    <div class="kv" id="devInfo"><b>Status</b><span>Not connected</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Step 2 · Live telemetry</h2>
+    <div class="tele">
+      <div class="metric"><div class="l">Power W</div><div class="v" id="tPower">–</div></div>
+      <div class="metric"><div class="l">Cadence rpm</div><div class="v" id="tCad">–</div></div>
+      <div class="metric"><div class="l">Speed km/h</div><div class="v" id="tSpeed">–</div></div>
+    </div>
+    <p class="muted" id="tRate">No data yet.</p>
+  </div>
+
+  <div class="card">
+    <h2>Step 3 · ERG control</h2>
+    <div class="row">
+      <button class="btn" id="btnReqCtl" disabled>Request control</button>
+      <label>Target W <input type="number" id="manualW" value="150" min="0" step="5"></label>
+      <button class="btn" id="btnSetW" disabled>Send single target</button>
+      <span id="ergAck" class="muted">No command sent.</span>
+    </div>
+    <hr style="border-color:var(--line)">
+    <h2>Guided ERG verification (~75 s)</h2>
+    <p class="muted">Pedal at a steady cadence (aim for 85–90 rpm) and hold it the whole time. The test sends 100 W → 200 W → 140 W. It passes only if the bike acknowledges every command <b>and</b> measured power tracks each target while your cadence stays roughly constant, which can only happen if resistance is actually changing.</p>
+    <div class="row">
+      <button class="btn go" id="btnVerify" disabled>Start verification</button>
+      <button class="btn stop" id="btnVerifyAbort" style="display:none">Abort</button>
+      <span id="verifyStatus" class="muted"></span>
+    </div>
+    <div id="verifyResult"></div>
+    <div id="ergBadgeWrap" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Settings</h2>
+    <div class="row">
+      <label>FTP W <input type="number" id="setFtp" min="50" max="600" step="1"></label>
+      <label>Power display
+        <select id="setSmooth"><option value="1">1 s</option><option value="3">3 s avg</option><option value="5">5 s avg</option></select></label>
+      <label>Pause/easy target W <input type="number" id="setPauseW" min="0" step="5"></label>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <label><input type="checkbox" id="setAutoPause"> Auto-pause when cadence drops below</label>
+      <input type="number" id="setCadMin" min="5" max="60"> <label>rpm for</label>
+      <input type="number" id="setCadSec" min="2" max="20"> <label>s, then soft-start when pedaling resumes</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Connection log</h2>
+    <div class="row" style="margin-bottom:8px"><button class="btn sm" id="btnCopyLog">Copy log</button></div>
+    <div id="log"></div>
+  </div>
+</section>
+
+<!-- ================= RIDE ================= -->
+<section id="ride">
+  <div class="card" id="rideSelect">
+    <div class="row">
+      <label>Workout <select id="rideWorkout"></select></label>
+      <span id="rideMeta" class="muted"></span>
+      <button class="btn go" id="btnStart">Start workout</button>
+      <label><input type="checkbox" id="noErg"> Ride without ERG (targets shown only, bike stays in manual)</label>
+    </div>
+    <div id="startBlock" class="muted" style="margin-top:6px"></div>
+  </div>
+  <div id="alertBar"></div>
+  <div id="doneCard"><svg viewBox="0 0 64 64"><defs><linearGradient id="ggb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF2D8A"/><stop offset="1" stop-color="#8F5BFF"/></linearGradient></defs><path d="M14 3 H61 Q63 3 62.5 5 L52 59 Q51.6 61 49.5 61 H3 Q1 61 1.5 59 L12 5 Q12.4 3 14 3Z" fill="url(#ggb)"/><g transform="translate(9.5 3.5) scale(.86) skewX(-10)"><path d="M45.5 17.5 A19.5 19.5 0 1 0 51.5 31" fill="none" stroke="#fff" stroke-width="7.5" stroke-linecap="round"/><rect x="31" y="35" width="5" height="6" rx="1" fill="#fff"/><rect x="38" y="26" width="5" height="15" rx="1" fill="#fff"/><rect x="45" y="31" width="6" height="10" rx="1" fill="#fff"/></g></svg><div class="dtitle" id="doneTitle"></div><div class="muted" id="doneStats"></div><div class="row" style="justify-content:center;margin-top:12px"><button class="btn pri" id="doneTcx">Export for Strava (.tcx)</button><button class="btn" id="doneClose">Close</button></div></div>
+  <div id="segName">—</div>
+  <div class="grid">
+    <div class="big xl"><div class="l">Power</div><div class="v" id="rPower">–</div><div class="s" id="rPowerSub"></div></div>
+    <div class="big xl"><div class="l">Target</div><div class="v" id="rTarget">–</div><div class="s" id="rErg"></div></div>
+    <div class="big"><div class="l">Cadence</div><div class="v" id="rCad">–</div><div class="s">rpm</div></div>
+    <div class="big xl" id="rSegLeftBox"><div class="l">Interval left</div><div class="v" id="rSegLeft">–</div><div class="s" id="rSegOf"></div></div>
+    <div class="big"><div class="l">Total left</div><div class="v" id="rTotLeft">–</div><div class="s" id="rElapsed"></div></div>
+  </div>
+  <div id="nextLine" style="margin-top:8px">Next: —</div>
+  <svg id="profile" preserveAspectRatio="none"></svg>
+  <div id="rideCtl">
+    <button class="btn" id="btnPause" disabled>Pause</button>
+    <button class="btn" id="btnSkip" disabled>Skip interval</button>
+    <button class="btn stop" id="btnEnd" disabled>End workout</button>
+    <button class="btn" id="btnFull">Full screen</button>
+  </div>
+  <p class="muted" id="rideFoot" style="margin-top:8px">Speed <span id="rSpeed">–</span> km/h · <span id="wakeNote">Screen kept awake while riding (if the browser allows).</span></p>
+</section>
+
+<!-- ================= BUILDER ================= -->
+<section id="build">
+  <div class="card">
+    <div class="row">
+      <label>Template <select id="bSelect"></select></label>
+      <button class="btn sm" id="bNew">New</button>
+      <button class="btn sm" id="bDup">Duplicate</button>
+      <button class="btn sm stop" id="bDel">Delete</button>
+      <button class="btn sm" id="bExport">Export all (JSON)</button>
+      <label class="btn sm" style="color:var(--fg)">Import JSON<input type="file" id="bImport" accept=".json,application/json" hidden></label>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row"><label>Name <input type="text" id="bName" style="width:280px"></label><span id="bSummary" class="muted"></span></div>
+    <svg id="bProfile" preserveAspectRatio="none" style="width:100%;height:90px;display:block;background:#000;border:1px solid var(--line);border-radius:10px;margin:10px 0"></svg>
+    <div id="bBlocks"></div>
+    <div class="row" style="margin-top:8px">
+      <span class="muted">Add:</span>
+      <button class="btn sm" data-add="warmup">Warm-up</button>
+      <button class="btn sm" data-add="steady">Steady</button>
+      <button class="btn sm" data-add="interval">Interval</button>
+      <button class="btn sm" data-add="recovery">Recovery</button>
+      <button class="btn sm" data-add="cooldown">Cool-down</button>
+      <button class="btn sm" data-add="repeat">Repeat set</button>
+    </div>
+    <div class="row" style="margin-top:12px"><button class="btn pri" id="bSave">Save template</button><span id="bMsg" class="muted"></span></div>
+    <p class="muted">Duration is minutes:seconds. Targets are watts or %FTP. Fill “ramp to” to ramp linearly across the block (typical for warm-up and cool-down); leave it blank for a steady target.</p>
+  </div>
+</section>
+
+<!-- ================= HISTORY ================= -->
+<section id="hist">
+  <div class="card">
+    <div class="row"><h2 style="margin:0">Completed workouts</h2><span class="muted">Stored on this device in the browser.</span></div>
+    <table id="hTable"><thead><tr><th>Date</th><th>Workout</th><th>Time</th><th>Avg W</th><th>NP</th><th>kJ</th><th>IF</th><th>Cad</th><th></th></tr></thead><tbody></tbody></table>
+  </div>
+  <div class="card" id="hDetail" style="display:none">
+    <h2 id="hTitle"></h2>
+    <svg id="hChart" preserveAspectRatio="none" style="width:100%;height:220px;display:block;background:#000;border:1px solid var(--line);border-radius:10px"></svg>
+    <p class="muted">White = power, yellow = target, blue = cadence (right scale).</p>
+  </div>
+</section>
+</main>
+<div id="modal" role="dialog" aria-modal="true"><div class="box"><div class="msg" id="modalMsg"></div><div class="row"><button class="btn" id="modalNo">Cancel</button><button class="btn stop" id="modalYes">OK</button></div></div></div>
+
+<!-- ======================================================================
+     CORE: pure logic (no DOM, no Bluetooth). Unit-tested separately.
+     ====================================================================== -->
+<script id="core">
+const UUID = {
+  FTMS: 0x1826, FEATURE: 0x2acc, BIKE_DATA: 0x2ad2, CONTROL: 0x2ad9, STATUS: 0x2ada,
+  TRAINING_STATUS: 0x2ad3, POWER_RANGE: 0x2ad8, RES_RANGE: 0x2ad6,
+  DIS: 0x180a, MANUF: 0x2a29, MODEL: 0x2a24, HW: 0x2a27, FW: 0x2a26, SW: 0x2a28,
+  CPS: 0x1818, BATTERY: 0x180f,
+};
+const MACHINE_FEATURES = ['Average Speed','Cadence','Total Distance','Inclination','Elevation Gain','Pace','Step Count','Resistance Level','Stride Count','Expended Energy','Heart Rate','Metabolic Equivalent','Elapsed Time','Remaining Time','Power Measurement','Force on Belt & Power','User Data Retention'];
+const TARGET_FEATURES = ['Speed target','Inclination target','Resistance target','Power target (ERG)','Heart-rate target','Energy target','Step target','Stride target','Distance target','Training-time target','2-zone HR','3-zone HR','5-zone HR','Indoor bike simulation','Wheel circumference','Spin-down control','Cadence target'];
+const CP_OP = { REQUEST_CONTROL: 0x00, RESET: 0x01, SET_TARGET_POWER: 0x05, START: 0x07, STOP_PAUSE: 0x08, RESPONSE: 0x80 };
+const CP_RESULT = { 1: 'Success', 2: 'Op code not supported', 3: 'Invalid parameter', 4: 'Operation failed', 5: 'Control not permitted' };
+const CP_NAME = { 0: 'Request control', 1: 'Reset', 5: 'Set target power', 7: 'Start/resume', 8: 'Stop/pause' };
+const STATUS_NAME = { 0x01: 'Reset', 0x02: 'Stopped/paused by user', 0x03: 'Stopped by safety key', 0x04: 'Started/resumed by user', 0x05: 'Target speed changed', 0x07: 'Target resistance changed', 0x08: 'Target power changed', 0x12: 'Sim parameters changed', 0x13: 'Wheel circumference changed', 0x14: 'Spin-down status', 0xff: 'Control permission lost' };
+
+function bitsToList(v, names) { const out = []; for (let i = 0; i < names.length; i++) if ((v >>> i) & 1) out.push(names[i]); return out; }
+
+function parseFeatures(dv) {
+  const machine = dv.getUint32(0, true), target = dv.byteLength >= 8 ? dv.getUint32(4, true) : 0;
+  return {
+    machine, target,
+    machineList: bitsToList(machine, MACHINE_FEATURES),
+    targetList: bitsToList(target, TARGET_FEATURES),
+    cadence: !!((machine >>> 1) & 1),
+    powerMeasurement: !!((machine >>> 14) & 1),
+    powerTarget: !!((target >>> 3) & 1),
+    simulation: !!((target >>> 13) & 1),
+  };
+}
+
+function parsePowerRange(dv) {
+  return { min: dv.getInt16(0, true), max: dv.getInt16(2, true), inc: dv.getUint16(4, true) };
+}
+
+// FTMS Indoor Bike Data (0x2AD2). Only fields present are returned; caller merges.
+function parseIndoorBikeData(dv) {
+  let o = 0; const n = dv.byteLength;
+  const need = k => { if (o + k > n) throw new Error('short'); };
+  const r = {};
+  need(2); const f = dv.getUint16(o, true); o += 2; r.flags = f;
+  try {
+    if (!(f & 0x0001)) { need(2); r.speed = dv.getUint16(o, true) / 100; o += 2; }   // bit0 = More Data (inverted)
+    if (f & 0x0002) { need(2); o += 2; }                                              // avg speed
+    if (f & 0x0004) { need(2); r.cadence = dv.getUint16(o, true) / 2; o += 2; }      // 0.5 rpm
+    if (f & 0x0008) { need(2); o += 2; }                                              // avg cadence
+    if (f & 0x0010) { need(3); r.distance = dv.getUint16(o, true) | (dv.getUint8(o + 2) << 16); o += 3; }
+    if (f & 0x0020) { need(2); r.resistance = dv.getInt16(o, true); o += 2; }
+    if (f & 0x0040) { need(2); r.power = dv.getInt16(o, true); o += 2; }
+    if (f & 0x0080) { need(2); o += 2; }                                              // avg power
+    if (f & 0x0100) { need(5); o += 5; }                                              // energy
+    if (f & 0x0200) { need(1); r.hr = dv.getUint8(o); o += 1; }
+    if (f & 0x0400) { need(1); o += 1; }                                              // MET
+    if (f & 0x0800) { need(2); r.elapsed = dv.getUint16(o, true); o += 2; }
+    if (f & 0x1000) { need(2); o += 2; }
+  } catch (e) { r.truncated = true; }
+  return r;
+}
+
+function parseControlResponse(dv) {
+  if (dv.byteLength < 3 || dv.getUint8(0) !== CP_OP.RESPONSE) return null;
+  const req = dv.getUint8(1), result = dv.getUint8(2);
+  return { req, result, ok: result === 1, reqName: CP_NAME[req] || ('0x' + req.toString(16)), resultName: CP_RESULT[result] || ('code ' + result) };
+}
+
+function parseMachineStatus(dv) {
+  const op = dv.getUint8(0); const r = { op, name: STATUS_NAME[op] || ('0x' + op.toString(16)) };
+  if (op === 0x08 && dv.byteLength >= 3) r.targetPower = dv.getInt16(1, true);
+  if (op === 0x02 && dv.byteLength >= 2) r.param = dv.getUint8(1);
+  return r;
+}
+
+function cmdRequestControl() { return new Uint8Array([CP_OP.REQUEST_CONTROL]); }
+function cmdReset() { return new Uint8Array([CP_OP.RESET]); }
+function cmdStart() { return new Uint8Array([CP_OP.START]); }
+function cmdSetTargetPower(w) {
+  const v = Math.max(-32768, Math.min(32767, Math.round(w)));
+  return new Uint8Array([CP_OP.SET_TARGET_POWER, v & 0xff, (v >> 8) & 0xff]);
+}
+
+/* ---- Workouts ----
+   Workout: { id, name, blocks: [Step | Repeat] }
+   Step:    { kind:'step', type:'warmup'|'steady'|'interval'|'recovery'|'cooldown', dur:sec, unit:'w'|'ftp', from:number, to:number|null }
+   Repeat:  { kind:'repeat', count:int, steps:[Step] }                                                     */
+const STEP_TYPES = ['warmup', 'steady', 'interval', 'recovery', 'cooldown'];
+const TYPE_LABEL = { warmup: 'Warm-up', steady: 'Steady', interval: 'Interval', recovery: 'Recovery', cooldown: 'Cool-down', repeat: 'Repeat' };
+
+function toWatts(v, unit, ftp) { return Math.round(unit === 'ftp' ? v * ftp / 100 : v); }
+function clampW(w, range) { if (!range) return Math.max(0, w); return Math.max(Math.max(0, range.min), Math.min(range.max, w)); }
+
+function flatten(workout, ftp, range) {
+  const segs = []; let t = 0;
+  const push = (s, rep) => {
+    const dur = Math.max(1, Math.round(+s.dur || 0));
+    const startW = clampW(toWatts(+s.from, s.unit, ftp), range);
+    const endW = (s.to === null || s.to === '' || s.to === undefined || isNaN(+s.to)) ? startW : clampW(toWatts(+s.to, s.unit, ftp), range);
+    segs.push({ type: s.type, label: TYPE_LABEL[s.type] + (rep ? ' ' + rep : ''), dur, startW, endW, start: t, unit: s.unit, from: +s.from, to: s.to });
+    t += dur;
+  };
+  for (const b of workout.blocks || []) {
+    if (b.kind === 'repeat') {
+      const n = Math.max(1, Math.round(+b.count || 1));
+      for (let i = 0; i < n; i++) for (const s of b.steps || []) push(s, `${i + 1}/${n}`);
+    } else push(b);
+  }
+  return { segs, total: t };
+}
+
+function targetAt(seg, tInSeg) {
+  if (seg.startW === seg.endW) return seg.startW;
+  const f = Math.max(0, Math.min(1, tInSeg / seg.dur));
+  return Math.round(seg.startW + (seg.endW - seg.startW) * f);
+}
+
+function validateWorkout(w) {
+  const errs = [];
+  if (!w.name || !String(w.name).trim()) errs.push('Name is required');
+  if (!w.blocks || !w.blocks.length) errs.push('Add at least one block');
+  const chk = (s, where) => {
+    if (!(+s.dur > 0)) errs.push(`${where}: duration must be > 0`);
+    if (!(+s.from >= 0)) errs.push(`${where}: target must be ≥ 0`);
+    if (s.to !== null && s.to !== '' && s.to !== undefined && !(+s.to >= 0)) errs.push(`${where}: ramp-to must be ≥ 0`);
+    if (s.unit === 'ftp' && (+s.from > 300 || +s.to > 300)) errs.push(`${where}: %FTP above 300 looks wrong`);
+  };
+  (w.blocks || []).forEach((b, i) => {
+    if (b.kind === 'repeat') {
+      if (!(+b.count >= 1)) errs.push(`Block ${i + 1}: repeat count must be ≥ 1`);
+      if (!b.steps || !b.steps.length) errs.push(`Block ${i + 1}: repeat set is empty`);
+      (b.steps || []).forEach((s, j) => chk(s, `Block ${i + 1}.${j + 1}`));
+    } else chk(b, `Block ${i + 1}`);
+  });
+  return errs;
+}
+
+function fmtTime(sec) {
+  sec = Math.max(0, Math.round(sec));
+  const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+  return h ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}`;
+}
+function parseMMSS(str) {
+  str = String(str).trim(); if (!str) return NaN;
+  const p = str.split(':').map(Number); if (p.some(isNaN)) return NaN;
+  return p.reduce((a, v) => a * 60 + v, 0);
+}
+
+// samples: [[t, power, target, cadence, speed], ...] at 1 Hz
+function summarize(samples, ftp) {
+  const pw = samples.map(s => s[1]).filter(v => v !== null && v !== undefined);
+  const cad = samples.map(s => s[3]).filter(v => v !== null && v !== undefined && v > 0);
+  const avg = pw.length ? pw.reduce((a, b) => a + b, 0) / pw.length : 0;
+  let np = 0;
+  if (pw.length >= 30) {
+    const roll = []; let sum = 0;
+    for (let i = 0; i < pw.length; i++) { sum += pw[i]; if (i >= 30) sum -= pw[i - 30]; if (i >= 29) roll.push(Math.pow(sum / 30, 4)); }
+    np = Math.pow(roll.reduce((a, b) => a + b, 0) / roll.length, 0.25);
+  } else np = avg;
+  const kj = pw.reduce((a, b) => a + b, 0) / 1000;
+  const IF = ftp ? np / ftp : 0;
+  const tss = ftp ? (samples.length * np * IF) / (ftp * 3600) * 100 : 0;
+  return { dur: samples.length, avg: Math.round(avg), np: Math.round(np), kj: Math.round(kj), IF: +IF.toFixed(2), tss: Math.round(tss), cad: cad.length ? Math.round(cad.reduce((a, b) => a + b, 0) / cad.length) : 0, max: pw.length ? Math.max(...pw) : 0 };
+}
+
+// ERG verification judgement for one step
+function judgeStep(target, powers, cadences) {
+  const n = powers.length;
+  if (n < 5) return { pass: false, why: 'too few power samples' };
+  const mean = powers.reduce((a, b) => a + b, 0) / n;
+  const cMean = cadences.length ? cadences.reduce((a, b) => a + b, 0) / cadences.length : 0;
+  const tol = Math.max(15, target * 0.1);
+  const pass = Math.abs(mean - target) <= tol && cMean >= 50;
+  return { pass, mean: Math.round(mean), cad: Math.round(cMean), tol: Math.round(tol), why: cMean < 50 ? 'cadence too low' : (pass ? '' : `off target by ${Math.round(mean - target)} W`) };
+}
+function judgeVerification(steps) {
+  // steps: [{target, mean, cad, pass}]
+  const allPass = steps.every(s => s.pass);
+  const cads = steps.map(s => s.cad);
+  const cadSpread = Math.max(...cads) - Math.min(...cads);
+  const lo = steps.find(s => s.target === Math.min(...steps.map(x => x.target)));
+  const hi = steps.find(s => s.target === Math.max(...steps.map(x => x.target)));
+  const delta = hi.mean - lo.mean;
+  const resistanceChanged = delta >= 0.6 * (hi.target - lo.target) && cadSpread <= 12;
+  return { pass: allPass && resistanceChanged, allPass, cadSpread, delta, resistanceChanged };
+}
+
+// TCX export (Garmin TrainingCenterDatabase v2 + ActivityExtension v2). Strava accepts this for manual upload.
+function xmlEsc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c])); }
+function buildTCX(ride) {
+  const t0 = new Date(ride.date).getTime();
+  const iso = ms => new Date(ms).toISOString().replace(/\.\d{3}Z$/, 'Z');
+  let dist = 0, maxSpd = 0, maxW = 0, sumW = 0, nW = 0, sumC = 0, nC = 0;
+  const pts = [];
+  for (let i = 0; i < ride.samples.length; i++) {
+    const [, pw, , cad, spd] = ride.samples[i];
+    let tp = `<Trackpoint><Time>${iso(t0 + i * 1000)}</Time>`;
+    if (spd != null && spd >= 0) { const ms = spd / 3.6; dist += ms; maxSpd = Math.max(maxSpd, ms); tp += `<DistanceMeters>${dist.toFixed(1)}</DistanceMeters>`; }
+    if (cad != null && cad >= 0) { const c = Math.min(254, Math.round(cad)); tp += `<Cadence>${c}</Cadence>`; if (c > 0) { sumC += c; nC++; } }
+    const ext = [];
+    if (spd != null && spd >= 0) ext.push(`<ns3:Speed>${(spd / 3.6).toFixed(2)}</ns3:Speed>`);
+    if (pw != null && pw >= 0) { const w = Math.round(pw); ext.push(`<ns3:Watts>${w}</ns3:Watts>`); maxW = Math.max(maxW, w); sumW += w; nW++; }
+    if (ext.length) tp += `<Extensions><ns3:TPX>${ext.join('')}</ns3:TPX></Extensions>`;
+    pts.push(tp + '</Trackpoint>');
+  }
+  const secs = ride.samples.length;
+  const kcal = Math.round(sumW / 1000); // ~1 kcal per kJ of mechanical work (standard cycling approximation)
+  const avgW = nW ? Math.round(sumW / nW) : 0;
+  const notes = `${ride.name} — Grift${ride.erg ? ' (ERG)' : ''}${ride.summary ? ` · NP ${ride.summary.np} W` : ''}`;
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:ns3="http://www.garmin.com/xmlschemas/ActivityExtension/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd">\n' +
+    `<Activities><Activity Sport="Biking"><Id>${iso(t0)}</Id>\n` +
+    `<Lap StartTime="${iso(t0)}"><TotalTimeSeconds>${secs}</TotalTimeSeconds><DistanceMeters>${dist.toFixed(1)}</DistanceMeters><MaximumSpeed>${maxSpd.toFixed(2)}</MaximumSpeed><Calories>${kcal}</Calories><Intensity>Active</Intensity>` +
+    (nC ? `<Cadence>${Math.min(254, Math.round(sumC / nC))}</Cadence>` : '') +
+    `<TriggerMethod>Manual</TriggerMethod>\n<Track>\n${pts.join('\n')}\n</Track>` +
+    `<Extensions><ns3:LX><ns3:AvgWatts>${avgW}</ns3:AvgWatts><ns3:MaxWatts>${maxW}</ns3:MaxWatts></ns3:LX></Extensions></Lap>\n` +
+    `<Notes>${xmlEsc(notes)}</Notes></Activity></Activities>\n</TrainingCenterDatabase>\n`;
+}
+function tcxFileName(ride) { const d = new Date(ride.date); const p = n => String(n).padStart(2, '0'); return `Grift ${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}${p(d.getMinutes())} ${String(ride.name).replace(/×/g, 'x').replace(/[^\w\- ]+/g, '').trim()}.tcx`; }
+
+if (typeof module !== 'undefined') module.exports = { buildTCX, tcxFileName, UUID, parseFeatures, parsePowerRange, parseIndoorBikeData, parseControlResponse, parseMachineStatus, cmdRequestControl, cmdReset, cmdStart, cmdSetTargetPower, flatten, targetAt, validateWorkout, fmtTime, parseMMSS, summarize, judgeStep, judgeVerification, toWatts };
+</script>
+
+<!-- ======================================================================
+     APP: Bluetooth, ERG controller, player, storage, UI
+     ====================================================================== -->
+<script id="app">
+'use strict';
+const $ = id => document.getElementById(id);
+const now = () => performance.now();
+
+/* ---------------- Logging ---------------- */
+const logLines = [];
+function log(msg, kind) {
+  const t = new Date().toLocaleTimeString();
+  const line = `[${t}] ${msg}`; logLines.push(line); if (logLines.length > 800) logLines.shift();
+  const el = $('log'); const d = document.createElement('div'); d.textContent = line;
+  if (kind === 'bad') d.style.color = 'var(--bad)'; else if (kind === 'ok') d.style.color = 'var(--ok)'; else if (kind === 'warn') d.style.color = 'var(--warn)';
+  el.appendChild(d); while (el.childNodes.length > 400) el.removeChild(el.firstChild); el.scrollTop = el.scrollHeight;
+  console.log(line);
+}
+const hex = dv => Array.from(new Uint8Array(dv.buffer, dv.byteOffset, dv.byteLength)).map(b => b.toString(16).padStart(2, '0')).join(' ');
+
+/* ---------------- Settings & storage ---------------- */
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('atomerg.' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('atomerg.' + k, JSON.stringify(v)); } catch (e) { log('Could not save ' + k + ': ' + e.message, 'bad'); } },
+};
+const settings = Object.assign({ ftp: 250, smooth: 3, pauseW: 60, autoPause: true, cadMin: 20, cadSec: 4 }, LS.get('settings', {}));
+function saveSettings() { LS.set('settings', settings); }
+
+// IndexedDB for ride history
+const DB = {
+  db: null,
+  open() {
+    return new Promise((res, rej) => {
+      if (this.db) return res(this.db);
+      const r = indexedDB.open('atom-erg', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('rides', { keyPath: 'id' });
+      r.onsuccess = () => { this.db = r.result; res(this.db); };
+      r.onerror = () => rej(r.error);
+    });
+  },
+  async tx(mode, fn) { const db = await this.open(); return new Promise((res, rej) => { const t = db.transaction('rides', mode); const st = t.objectStore('rides'); const out = fn(st); t.oncomplete = () => res(out && out.result !== undefined ? out.result : out); t.onerror = () => rej(t.error); }); },
+  put(r) { return this.tx('readwrite', st => st.put(r)); },
+  del(id) { return this.tx('readwrite', st => st.delete(id)); },
+  async all() { const db = await this.open(); return new Promise((res, rej) => { const q = db.transaction('rides').objectStore('rides').getAll(); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
+};
+
+/* ---------------- Default workouts ---------------- */
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const S = (type, dur, unit, from, to = null) => ({ kind: 'step', type, dur, unit, from, to });
+const DEFAULTS = [
+  { id: 'd-ss', name: 'Sweet Spot 3×10', blocks: [S('warmup', 600, 'ftp', 45, 75), { kind: 'repeat', count: 3, steps: [S('interval', 600, 'ftp', 90), S('recovery', 300, 'ftp', 55)] }, S('cooldown', 420, 'ftp', 60, 40)] },
+  { id: 'd-vo2', name: 'VO2 5×3', blocks: [S('warmup', 720, 'ftp', 45, 80), { kind: 'repeat', count: 5, steps: [S('interval', 180, 'ftp', 115), S('recovery', 180, 'ftp', 50)] }, S('cooldown', 480, 'ftp', 55, 40)] },
+  { id: 'd-test', name: 'ERG check 10 min (100–200 W)', blocks: [S('warmup', 120, 'w', 100), { kind: 'repeat', count: 3, steps: [S('interval', 60, 'w', 200), S('recovery', 60, 'w', 120)] }, S('cooldown', 120, 'w', 100)] },
+];
+let workouts = LS.get('workouts', null);
+if (!workouts || !workouts.length) { workouts = JSON.parse(JSON.stringify(DEFAULTS)); LS.set('workouts', workouts); }
+function saveWorkouts() { LS.set('workouts', workouts); }
+
+/* ---------------- Bluetooth / FTMS ---------------- */
+const bike = {
+  device: null, server: null, chars: {}, connected: false, userDisconnect: false,
+  features: null, powerRange: null, info: {}, hasControl: false,
+  reconnectTimer: null, reconnectAttempt: 0,
+};
+const tele = { power: null, cadence: null, speed: null, lastAt: 0, count: 0, rateWin: [], hist: [] }; // hist: [time, power]
+
+const ergVerify = LS.get('ergVerified', null); // {date, name, fw, results}
+let ergVerified = ergVerify;
+
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function btSupportText() {
+  if (IS_IOS && !('bluetooth' in navigator)) return '<span class="pill bad">Bluetooth not available in this browser</span> Safari and Chrome on iPhone/iPad cannot talk to Bluetooth bikes. Install the free <b>Bluefy – Web BLE Browser</b> app from the App Store and open this same address in it.';
+  if (!('bluetooth' in navigator)) return '<span class="pill bad">Web Bluetooth unavailable</span> Use Chrome or Edge on Mac, Windows or Android (on iPhone/iPad use the Bluefy browser). Firefox and Safari do not support it.';
+  if (!window.isSecureContext) return '<span class="pill bad">Insecure context</span> Bluetooth needs an https:// address (or a local file on desktop).';
+  return '<span class="pill ok">Web Bluetooth available</span>';
+}
+
+async function connect() {
+  if (!('bluetooth' in navigator)) { log('Web Bluetooth not available in this browser.', 'bad'); return; }
+  const opts = $('showAll').checked
+    ? { acceptAllDevices: true, optionalServices: [UUID.FTMS, UUID.CPS, UUID.DIS, UUID.BATTERY] }
+    : { filters: [{ services: [UUID.FTMS] }, { namePrefix: 'Wattbike' }, { namePrefix: 'ATOM' }, { namePrefix: 'Atom' }], optionalServices: [UUID.FTMS, UUID.CPS, UUID.DIS, UUID.BATTERY] };
+  try {
+    const dev = await navigator.bluetooth.requestDevice(opts);
+    bike.device = dev; bike.userDisconnect = false;
+    dev.addEventListener('gattserverdisconnected', onDisconnected);
+    log(`Selected device "${dev.name || '(no name)'}" id=${dev.id}`);
+    await setupGatt();
+  } catch (e) { log('Connect cancelled/failed: ' + e.message, 'bad'); updateBadge(); }
+}
+
+async function setupGatt() {
+  const dev = bike.device;
+  updateBadge('CONNECTING…', 'warn');
+  bike.server = await dev.gatt.connect();
+  log('GATT connected.', 'ok');
+  bike.hasControl = false; bike.chars = {};
+
+  // Device information (generation/firmware). Serial number is blocklisted by Web Bluetooth.
+  bike.info = { name: dev.name || '' };
+  try {
+    const dis = await bike.server.getPrimaryService(UUID.DIS);
+    const dec = new TextDecoder();
+    for (const [k, u] of [['manufacturer', UUID.MANUF], ['model', UUID.MODEL], ['hardware', UUID.HW], ['firmware', UUID.FW], ['software', UUID.SW]]) {
+      try { const c = await dis.getCharacteristic(u); bike.info[k] = dec.decode(await c.readValue()).replace(/\0/g, '').trim(); } catch (e) { /* not present */ }
+    }
+    log('Device info: ' + JSON.stringify(bike.info));
+  } catch (e) { log('Device Information service not readable: ' + e.message, 'warn'); }
+
+  let ftms;
+  try { ftms = await bike.server.getPrimaryService(UUID.FTMS); }
+  catch (e) {
+    log('FTMS service (0x1826) NOT found. This bike/firmware cannot be controlled with this app. Update firmware via Wattbike Hub and make sure no other app is connected.', 'bad');
+    renderDevInfo(); updateBadge('NO FTMS', 'bad'); return;
+  }
+  log('FTMS service found.', 'ok');
+
+  try { const c = await ftms.getCharacteristic(UUID.FEATURE); const v = await c.readValue(); bike.features = parseFeatures(v); log(`Features raw: ${hex(v)} → power target supported: ${bike.features.powerTarget}`); }
+  catch (e) { bike.features = null; log('Feature characteristic unreadable: ' + e.message, 'bad'); }
+
+  try { const c = await ftms.getCharacteristic(UUID.POWER_RANGE); bike.powerRange = parsePowerRange(await c.readValue()); log(`Supported power range: ${bike.powerRange.min}–${bike.powerRange.max} W, step ${bike.powerRange.inc}`); }
+  catch (e) { bike.powerRange = null; log('Supported Power Range not present: ' + e.message, 'warn'); }
+
+  // Telemetry
+  try {
+    const c = await ftms.getCharacteristic(UUID.BIKE_DATA);
+    c.addEventListener('characteristicvaluechanged', ev => onBikeData(ev.target.value));
+    await c.startNotifications(); bike.chars.data = c; log('Subscribed to Indoor Bike Data.', 'ok');
+  } catch (e) { log('Indoor Bike Data subscribe failed: ' + e.message, 'bad'); }
+
+  try {
+    const c = await ftms.getCharacteristic(UUID.STATUS);
+    c.addEventListener('characteristicvaluechanged', ev => onStatus(ev.target.value));
+    await c.startNotifications(); bike.chars.status = c; log('Subscribed to Machine Status.');
+  } catch (e) { log('Machine Status not available: ' + e.message, 'warn'); }
+
+  try {
+    const c = await ftms.getCharacteristic(UUID.CONTROL);
+    c.addEventListener('characteristicvaluechanged', ev => onControlResponse(ev.target.value));
+    await c.startNotifications(); bike.chars.control = c; log('Subscribed to Control Point indications.', 'ok');
+  } catch (e) { bike.chars.control = null; log('Control Point not available: ' + e.message + ' — ERG impossible.', 'bad'); }
+
+  bike.connected = true; bike.reconnectAttempt = 0;
+  renderDevInfo(); updateBadge(); updateButtons();
+
+  // Request control right away so later target commands are permitted.
+  if (bike.chars.control) await ergc.requestControl();
+
+  // If a workout is running it was paused by the disconnect; stay paused until the rider resumes.
+  if (player.active) { player.lastSentTarget = null; setAlert('RECONNECTED · tap Resume to continue', 'warn'); }
+}
+
+function onDisconnected() {
+  const wasConnected = bike.connected;
+  bike.connected = false; bike.hasControl = false; ergc.reset();
+  tele.power = tele.cadence = tele.speed = null;
+  updateBadge(); updateButtons();
+  log('Bike disconnected.', bike.userDisconnect ? undefined : 'bad');
+  if (player.active && !player.paused) player.pause('disconnect');
+  if (!bike.userDisconnect && bike.device && wasConnected !== undefined) scheduleReconnect();
+}
+
+function scheduleReconnect() {
+  clearTimeout(bike.reconnectTimer);
+  const delays = [1000, 2000, 4000, 8000, 15000];
+  const d = delays[Math.min(bike.reconnectAttempt, delays.length - 1)];
+  bike.reconnectAttempt++;
+  updateBadge(`RECONNECTING (${bike.reconnectAttempt})…`, 'warn');
+  if (player.active) setAlert(`BIKE DISCONNECTED · reconnecting (attempt ${bike.reconnectAttempt})`, 'bad');
+  bike.reconnectTimer = setTimeout(async () => {
+    if (bike.userDisconnect || bike.connected) return;
+    try { await setupGatt(); }
+    catch (e) { log('Reconnect failed: ' + e.message, 'warn'); scheduleReconnect(); }
+  }, d);
+}
+
+async function disconnect() {
+  bike.userDisconnect = true; clearTimeout(bike.reconnectTimer);
+  if (player.active) player.pause('user');
+  try { if (bike.chars.control && bike.connected) await ergc.send(cmdReset(), 'Reset (release control)'); } catch (e) { }
+  try { bike.device && bike.device.gatt.connected && bike.device.gatt.disconnect(); } catch (e) { }
+  bike.connected = false; updateBadge(); updateButtons();
+}
+
+function onBikeData(dv) {
+  const r = parseIndoorBikeData(dv);
+  const t = now();
+  if (r.power !== undefined) { tele.power = r.power; tele.hist.push([t, r.power]); }
+  if (r.cadence !== undefined) tele.cadence = r.cadence;
+  if (r.speed !== undefined) tele.speed = r.speed;
+  tele.lastAt = t; tele.count++;
+  tele.rateWin.push(t); while (tele.rateWin.length && t - tele.rateWin[0] > 5000) tele.rateWin.shift();
+  while (tele.hist.length && t - tele.hist[0][0] > 6000) tele.hist.shift();
+  if (r.truncated && tele.count < 5) log('Note: short Indoor Bike Data packet: ' + hex(dv), 'warn');
+  if (tele.count <= 3) log(`Bike data packet ${tele.count}: ${hex(dv)} → ${JSON.stringify(r)}`);
+}
+function teleStale() { return !bike.connected || now() - tele.lastAt > 3000; }
+function smoothedPower() {
+  if (teleStale()) return null;
+  const win = settings.smooth * 1000, t = now();
+  const xs = tele.hist.filter(h => t - h[0] <= win).map(h => h[1]);
+  if (!xs.length) return tele.power;
+  return Math.round(xs.reduce((a, b) => a + b, 0) / xs.length);
+}
+
+function onStatus(dv) {
+  const s = parseMachineStatus(dv);
+  if (s.op === 0x08) { ergc.statusTarget = s.targetPower; }
+  else log(`Machine status: ${s.name} (${hex(dv)})`, s.op === 0xff ? 'bad' : undefined);
+  if (s.op === 0xff) { bike.hasControl = false; log('Control lost — another app may have connected. Re-requesting control.', 'bad'); ergc.requestControl(); }
+}
+
+/* ---------------- ERG controller: serialized command queue with acks ---------------- */
+const ergc = {
+  busy: false, queue: [], pending: null, pendingTarget: null, lastAckW: null, lastSentW: null, lastResult: '', statusTarget: null, lastSendAt: 0, failures: 0,
+  reset() { this.queue = []; if (this.pending) { clearTimeout(this.pending.timer); this.pending.reject(new Error('disconnected')); } this.pending = null; this.busy = false; this.pendingTarget = null; this.lastAckW = null; this.lastSentW = null; this.statusTarget = null; },
+  send(bytes, label) {
+    return new Promise((resolve, reject) => { this.queue.push({ bytes, label, resolve, reject }); this.pump(); });
+  },
+  async pump() {
+    if (this.busy || !this.queue.length) return;
+    if (!bike.connected || !bike.chars.control) { const q = this.queue; this.queue = []; q.forEach(j => j.reject(new Error('not connected'))); return; }
+    this.busy = true;
+    const job = this.queue.shift();
+    const op = job.bytes[0];
+    const done = new Promise((res, rej) => { this.pending = { op, res, rej: rej, reject: rej, timer: setTimeout(() => rej(new Error('no response within 3 s')), 3000) }; });
+    try {
+      const c = bike.chars.control;
+      if (c.writeValueWithResponse) await c.writeValueWithResponse(job.bytes); else await c.writeValue(job.bytes);
+      const resp = await done;
+      clearTimeout(this.pending && this.pending.timer); this.pending = null;
+      job.resolve(resp);
+    } catch (e) {
+      if (this.pending) clearTimeout(this.pending.timer); this.pending = null;
+      job.reject(e);
+    } finally { this.busy = false; this.pump(); }
+  },
+  async requestControl() {
+    try {
+      const r = await this.send(cmdRequestControl(), 'Request control');
+      log(`Request control → ${r.resultName}`, r.ok ? 'ok' : 'bad');
+      bike.hasControl = r.ok;
+      if (!r.ok && r.result === 5) log('Bike refused control. Close/disconnect other apps (MyWhoosh, Zwift, Wattbike Hub), power-cycle the bike, and reconnect.', 'bad');
+      if (r.ok) { try { const s = await this.send(cmdStart(), 'Start'); log(`Start/resume → ${s.resultName}`); } catch (e) { log('Start command: ' + e.message, 'warn'); } }
+      updateButtons(); return r.ok;
+    } catch (e) { log('Request control failed: ' + e.message, 'bad'); bike.hasControl = false; updateButtons(); return false; }
+  },
+  // Coalescing target setter: only the newest target waits in line.
+  setTarget(w) {
+    w = clampW(Math.round(w), bike.powerRange);
+    if (bike.powerRange && bike.powerRange.inc > 1) w = Math.round(w / bike.powerRange.inc) * bike.powerRange.inc;
+    this.pendingTarget = w;
+    if (this._inflight) return;
+    this._drainTarget();
+  },
+  async _drainTarget() {
+    this._inflight = true;
+    while (this.pendingTarget !== null) {
+      const w = this.pendingTarget; this.pendingTarget = null;
+      if (!bike.connected) break;
+      if (!bike.hasControl) { const ok = await this.requestControl(); if (!ok) break; }
+      try {
+        this.lastSentW = w; this.lastSendAt = now();
+        const r = await this.send(cmdSetTargetPower(w), 'Set target ' + w);
+        this.lastResult = r.resultName;
+        if (r.ok) { this.lastAckW = w; this.failures = 0; }
+        else {
+          this.failures++; log(`Set target ${w} W → ${r.resultName}`, 'bad');
+          if (r.result === 5) { bike.hasControl = false; this.pendingTarget = this.pendingTarget ?? w; await new Promise(z => setTimeout(z, 500)); }
+        }
+      } catch (e) {
+        this.failures++; this.lastResult = e.message; log(`Set target ${w} W failed: ${e.message}`, 'bad');
+        if (this.failures < 3 && bike.connected && this.pendingTarget === null) { this.pendingTarget = w; await new Promise(z => setTimeout(z, 700)); }
+      }
+    }
+    this._inflight = false;
+  },
+};
+function onControlResponse(dv) {
+  const r = parseControlResponse(dv);
+  if (!r) { log('Unexpected control point data: ' + hex(dv), 'warn'); return; }
+  const p = ergc.pending;
+  if (p && p.op === r.req) p.res(r);
+  else log(`Unmatched control response: ${r.reqName} → ${r.resultName}`, 'warn');
+}
+
+/* ---------------- Guided ERG verification ---------------- */
+const verify = { running: false, abort: false };
+async function runVerification() {
+  if (!bike.connected) return;
+  verify.running = true; verify.abort = false;
+  $('btnVerify').style.display = 'none'; $('btnVerifyAbort').style.display = '';
+  $('verifyResult').innerHTML = '';
+  const plan = [{ w: 100, settle: 12, meas: 12 }, { w: 200, settle: 12, meas: 12 }, { w: 140, settle: 12, meas: 12 }];
+  const results = [];
+  const status = t => $('verifyStatus').textContent = t;
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  try {
+    if (!bike.hasControl && !(await ergc.requestControl())) throw new Error('bike did not grant control');
+    status('Start pedaling steadily…');
+    for (let i = 10; i > 0; i--) { if (verify.abort) throw new Error('aborted'); status(`Start pedaling at ~85–90 rpm… ${i}`); await sleep(1000); }
+    for (const st of plan) {
+      ergc.setTarget(st.w);
+      // wait for acknowledgement
+      const t0 = now(); while (ergc.lastAckW !== st.w && now() - t0 < 4000) { if (verify.abort) throw new Error('aborted'); await sleep(100); }
+      const acked = ergc.lastAckW === st.w;
+      log(`Verify: target ${st.w} W acknowledged=${acked} (${ergc.lastResult})`, acked ? 'ok' : 'bad');
+      for (let s = st.settle; s > 0; s--) { if (verify.abort) throw new Error('aborted'); status(`${st.w} W · settling ${s}s · now ${smoothedPower() ?? '–'} W @ ${tele.cadence ?? '–'} rpm`); await sleep(1000); }
+      const pw = [], cd = [];
+      for (let s = st.meas; s > 0; s--) {
+        if (verify.abort) throw new Error('aborted');
+        if (teleStale()) throw new Error('telemetry stopped');
+        pw.push(tele.power); cd.push(tele.cadence || 0);
+        status(`${st.w} W · measuring ${s}s · now ${tele.power} W @ ${tele.cadence} rpm`); await sleep(1000);
+      }
+      const j = judgeStep(st.w, pw, cd); j.target = st.w; j.acked = acked; j.pass = j.pass && acked; if (!acked) j.why = 'not acknowledged';
+      results.push(j);
+    }
+    ergc.setTarget(settings.pauseW);
+    const v = judgeVerification(results);
+    renderVerifyResult(results, v);
+    status(v.pass ? 'Objective checks passed.' : 'Verification FAILED.');
+  } catch (e) {
+    status('Stopped: ' + e.message); log('Verification stopped: ' + e.message, 'bad');
+    try { if (bike.connected) ergc.setTarget(settings.pauseW); } catch (x) { }
+  } finally {
+    verify.running = false; $('btnVerify').style.display = ''; $('btnVerifyAbort').style.display = 'none'; updateButtons();
+  }
+}
+function renderVerifyResult(results, v) {
+  let h = '<table><tr><th>Target</th><th>Ack</th><th>Measured avg</th><th>Cadence</th><th>Tolerance</th><th>Result</th></tr>';
+  for (const r of results) h += `<tr><td>${r.target} W</td><td>${r.acked ? '✓' : '✗'}</td><td>${r.mean ?? '–'} W</td><td>${r.cad ?? '–'} rpm</td><td>±${r.tol ?? '–'} W</td><td>${r.pass ? '<span class="pill ok">PASS</span>' : '<span class="pill bad">FAIL</span> ' + (r.why || '')}</td></tr>`;
+  h += '</table>';
+  h += `<p>Power rose ${v.delta} W between the 100 W and 200 W steps; cadence spread ${v.cadSpread} rpm (≤12 required). ${v.resistanceChanged ? '<span class="pill ok">Resistance change confirmed</span>' : '<span class="pill bad">Resistance change NOT confirmed</span>'}</p>`;
+  if (v.pass) {
+    h += `<div class="row"><label><input type="checkbox" id="feltIt"> I clearly felt resistance increase at 200 W and drop at 140 W</label><button class="btn go" id="btnConfirmErg" disabled>Mark ERG as verified</button></div>`;
+  } else {
+    h += '<p class="c-high"><b>ERG is not verified.</b> Workouts will refuse to run in ERG mode. Check the log, make sure no other app is connected, update firmware in Wattbike Hub, and retry.</p>';
+  }
+  $('verifyResult').innerHTML = h;
+  if (v.pass) {
+    $('feltIt').onchange = e => $('btnConfirmErg').disabled = !e.target.checked;
+    $('btnConfirmErg').onclick = () => {
+      ergVerified = { date: new Date().toISOString(), name: bike.info.name, model: bike.info.model, fw: bike.info.firmware, hw: bike.info.hardware, results };
+      LS.set('ergVerified', ergVerified); log('ERG marked verified for this bike/firmware.', 'ok'); renderErgBadge(); renderRideSelect();
+    };
+  }
+}
+function ergVerifiedForThisBike() {
+  if (!ergVerified) return false;
+  if (!bike.connected) return true; // checked again on start
+  return ergVerified.name === bike.info.name && (ergVerified.fw || '') === (bike.info.firmware || '');
+}
+function renderErgBadge() {
+  const el = $('ergBadgeWrap');
+  if (!ergVerified) { el.innerHTML = '<span class="pill bad">ERG NOT VERIFIED</span>'; return; }
+  const same = ergVerifiedForThisBike();
+  el.innerHTML = `<span class="pill ${same ? 'ok' : 'warn'}">${same ? 'ERG VERIFIED' : 'VERIFIED ON DIFFERENT BIKE/FIRMWARE — re-test'}</span> <span class="muted">${new Date(ergVerified.date).toLocaleString()} · ${ergVerified.name || ''} · fw ${ergVerified.fw || 'unknown'}</span> <button class="btn sm" id="btnClearVerify">Clear</button>`;
+  $('btnClearVerify').onclick = () => { ergVerified = null; LS.set('ergVerified', null); renderErgBadge(); renderRideSelect(); };
+}
+
+/* ---------------- Workout player ---------------- */
+const player = {
+  active: false, paused: false, pauseReason: '', workout: null, segs: [], total: 0, idx: 0, segT: 0, elapsed: 0,
+  lastTick: 0, timer: null, samples: [], sampleAcc: 0, ergOn: true, softFrom: null, softStart: 0, softDur: 5000,
+  lowCadSince: null, cadOkSince: null, rideId: null, startedAt: null, lastSentTarget: null, lastAutosave: 0, wakeLock: null,
+
+  start(workout, ergOn) {
+    const { segs, total } = flatten(workout, settings.ftp, bike.powerRange);
+    if (!segs.length) return;
+    Object.assign(this, { active: true, paused: false, pauseReason: '', workout, segs, total, idx: 0, segT: 0, elapsed: 0, samples: [], sampleAcc: 0, ergOn, softFrom: null, lowCadSince: null, cadOkSince: null, rideId: uid(), startedAt: new Date().toISOString(), lastSentTarget: null, lastAutosave: now() });
+    this.lastTick = now();
+    this.beginSoft(Math.min(segs[0].startW, settings.pauseW + 40));
+    this.timer = setInterval(() => this.tick(), 250);
+    this.acquireWake();
+    log(`Workout started: ${workout.name} (${fmtTime(total)}, ERG ${ergOn ? 'ON' : 'OFF'})`, 'ok');
+    renderProfile($('profile'), segs, total); updateRideUI(); updateButtons();
+  },
+  seg() { return this.segs[this.idx]; },
+  baseTarget() { const s = this.seg(); return s ? targetAt(s, this.segT) : 0; },
+  beginSoft(fromW) { this.softFrom = fromW; this.softStart = now(); },
+  effectiveTarget() {
+    const base = this.baseTarget();
+    if (this.softFrom === null) return base;
+    const f = (now() - this.softStart) / this.softDur;
+    if (f >= 1 || this.softFrom >= base) { this.softFrom = null; return base; }
+    return Math.round(this.softFrom + (base - this.softFrom) * f);
+  },
+  tick() {
+    const t = now(); const dt = Math.min(2, (t - this.lastTick) / 1000); this.lastTick = t;
+    if (!this.active) return;
+    this.cadenceGuard();
+    if (!this.paused) {
+      this.segT += dt; this.elapsed += dt; this.sampleAcc += dt;
+      while (this.sampleAcc >= 1) {
+        this.sampleAcc -= 1;
+        const stale = teleStale();
+        this.samples.push([this.samples.length, stale ? null : tele.power, this.lastSentTarget ?? this.baseTarget(), stale ? null : tele.cadence, stale ? null : tele.speed]);
+      }
+      while (this.active && this.segT >= this.seg().dur) {
+        this.segT -= this.seg().dur; this.idx++;
+        if (this.idx >= this.segs.length) { this.finish(true); return; }
+        log(`→ ${this.seg().label} ${this.seg().startW}${this.seg().endW !== this.seg().startW ? '→' + this.seg().endW : ''} W`);
+        beep(2);
+      }
+      if (this.seg().dur - this.segT <= 3.2 && this.seg().dur - this.segT > 0 && Math.ceil(this.seg().dur - this.segT) !== this._lastBeep) { this._lastBeep = Math.ceil(this.seg().dur - this.segT); beep(1); }
+      this.pushTarget(this.effectiveTarget());
+    } else {
+      this.pushTarget(settings.pauseW);
+    }
+    if (t - this.lastAutosave > 60000) { this.lastAutosave = t; this.save(false); }
+    updateRideUI();
+  },
+  pushTarget(w) {
+    if (!this.ergOn || !bike.connected) { this.lastSentTarget = w; return; }
+    const changed = this.lastSentTarget === null || w !== this.lastSentTarget;
+    const segStart = this.segT < 0.3;
+    const big = this.lastSentTarget === null || Math.abs(w - this.lastSentTarget) >= 5;
+    const tooSoon = now() - ergc.lastSendAt < (this.softFrom !== null ? 900 : 2000);
+    const resend = ergc.lastAckW !== w && now() - ergc.lastSendAt > 5000; // last command not acked: retry every 5 s
+    if ((changed && (big || segStart) && (!tooSoon || segStart || this.paused)) || resend) { this.lastSentTarget = w; ergc.setTarget(w); }
+  },
+  cadenceGuard() {
+    if (!settings.autoPause || !bike.connected) return;
+    const t = now(); const c = teleStale() ? 0 : (tele.cadence || 0);
+    if (!this.paused) {
+      if (c < settings.cadMin) { this.lowCadSince ??= t; if (t - this.lowCadSince > settings.cadSec * 1000) { this.pause('cadence'); } }
+      else this.lowCadSince = null;
+    } else if (this.pauseReason === 'cadence') {
+      if (c >= Math.max(settings.cadMin + 10, 30)) { this.cadOkSince ??= t; if (t - this.cadOkSince > 1500) this.resume(true); }
+      else this.cadOkSince = null;
+    }
+  },
+  pause(reason) {
+    if (!this.active || this.paused) return;
+    this.paused = true; this.pauseReason = reason; this.lowCadSince = null; this.cadOkSince = null;
+    log(`Paused (${reason}).`, reason === 'disconnect' ? 'bad' : 'warn');
+    if (this.ergOn && bike.connected) { this.lastSentTarget = settings.pauseW; ergc.setTarget(settings.pauseW); }
+    updateRideUI(); updateButtons();
+  },
+  resume(auto) {
+    if (!this.active || !this.paused) return;
+    if (this.ergOn && !bike.connected) { setAlert('Cannot resume: bike not connected', 'bad'); return; }
+    this.paused = false; this.pauseReason = ''; this.lastTick = now(); this.lowCadSince = null;
+    this.beginSoft(Math.min(this.baseTarget(), settings.pauseW));
+    this.lastSentTarget = null;
+    log(auto ? 'Pedaling detected — soft-start resume.' : 'Resumed — soft-start.', 'ok');
+    updateRideUI(); updateButtons();
+  },
+  skip() {
+    if (!this.active) return;
+    log(`Skipped ${this.seg().label}.`);
+    this.elapsed += 0; this.idx++; this.segT = 0;
+    if (this.idx >= this.segs.length) { this.finish(true); return; }
+    this.lastSentTarget = null; beep(2); updateRideUI();
+  },
+  async finish(completed) {
+    if (!this.active) return;
+    clearInterval(this.timer); this.active = false; this.paused = false;
+    if (this.ergOn && bike.connected) { ergc.setTarget(Math.max(settings.pauseW, bike.powerRange ? bike.powerRange.min : 0)); }
+    await this.save(true, completed);
+    this.releaseWake();
+    log(`Workout ${completed ? 'completed' : 'ended early'}. Saved ${this.samples.length} s of data.`, 'ok');
+    setAlert(''); updateRideUI(); updateButtons(); renderHistory();
+    $('segName').textContent = '';
+    showDone(completed);
+  },
+  async save(final, completed) {
+    if (!this.samples.length) return;
+    const sum = summarize(this.samples, settings.ftp);
+    const rec = { id: this.rideId, date: this.startedAt, name: this.workout.name, ftp: settings.ftp, erg: this.ergOn, completed: !!completed, final: !!final, plannedSec: this.total, workout: this.workout, summary: sum, samples: this.samples };
+    try { await DB.put(rec); } catch (e) { log('Saving ride failed: ' + e.message, 'bad'); }
+  },
+  lastRide() { return { id: this.rideId, date: this.startedAt, name: this.workout.name, erg: this.ergOn, samples: this.samples, summary: summarize(this.samples, settings.ftp) }; },
+  async acquireWake() {
+    let ok = false;
+    try { if ('wakeLock' in navigator) { this.wakeLock = await navigator.wakeLock.request('screen'); ok = true; } } catch (e) { }
+    $('wakeNote').textContent = ok ? 'Screen kept awake while riding.' : 'This browser cannot keep the screen awake: set Auto-Lock to Never while riding.';
+    $('wakeNote').className = ok ? '' : 'c-warn';
+  },
+  releaseWake() { try { this.wakeLock && this.wakeLock.release(); } catch (e) { } this.wakeLock = null; },
+};
+document.addEventListener('visibilitychange', () => {
+  if (!player.active) return;
+  if (document.visibilityState === 'hidden') { if (!player.paused) player.pause('background'); }
+  else player.acquireWake();
+});
+window.addEventListener('beforeunload', e => { if (player.active) { player.save(false); e.preventDefault(); e.returnValue = ''; } });
+
+function showDone(completed) {
+  const r = player.lastRide(), s = r.summary;
+  $('doneTitle').textContent = completed ? 'Workout complete' : 'Workout ended';
+  $('doneStats').textContent = r.samples.length ? `${r.name} · ${fmtTime(s.dur)} · avg ${s.avg} W · NP ${s.np} W · ${s.kj} kJ · TSS ${s.tss}` : 'No data was recorded.';
+  $('doneTcx').disabled = !r.samples.length;
+  $('doneTcx').onclick = () => exportTCX(r);
+  $('doneCard').classList.add('on');
+}
+function ask(msg, yesLabel = 'OK', noLabel = 'Cancel') {
+  return new Promise(res => {
+    $('modalMsg').textContent = msg; $('modalYes').textContent = yesLabel;
+    $('modalNo').style.display = noLabel ? '' : 'none'; $('modalNo').textContent = noLabel || '';
+    $('modal').classList.add('on');
+    const done = v => { $('modal').classList.remove('on'); $('modalYes').onclick = $('modalNo').onclick = null; res(v); };
+    $('modalYes').onclick = () => done(true); $('modalNo').onclick = () => done(false);
+  });
+}
+function tell(msg) { return ask(msg, 'OK', null); }
+let audioCtx = null;
+function beep(n) {
+  try {
+    audioCtx ??= new (window.AudioContext || window.webkitAudioContext)();
+    for (let i = 0; i < n; i++) {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain(); const t0 = audioCtx.currentTime + i * 0.18;
+      o.frequency.value = n > 1 ? 1100 : 760; g.gain.setValueAtTime(0.25, t0); g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.14);
+      o.connect(g).connect(audioCtx.destination); o.start(t0); o.stop(t0 + 0.15);
+    }
+  } catch (e) { }
+}
+
+/* ---------------- UI rendering ---------------- */
+function updateBadge(text, cls) {
+  const b = $('connBadge');
+  if (text) { b.textContent = text; b.className = cls; return; }
+  if (!bike.connected) { b.textContent = 'NOT CONNECTED'; b.className = 'bad'; return; }
+  b.textContent = (bike.info.name || 'BIKE') + (bike.hasControl ? ' · CONTROL' : ' · NO CONTROL'); b.className = bike.hasControl ? 'ok' : 'warn';
+}
+function updateButtons() {
+  const c = bike.connected;
+  $('btnConnect').disabled = c; $('btnDisconnect').disabled = !c;
+  const canCtl = c && !!bike.chars.control;
+  $('btnReqCtl').disabled = !canCtl; $('btnSetW').disabled = !canCtl || player.active;
+  $('btnVerify').disabled = !canCtl || verify.running || player.active || !(bike.features && bike.features.powerTarget);
+  $('btnPause').disabled = !player.active; $('btnSkip').disabled = !player.active; $('btnEnd').disabled = !player.active;
+  $('btnPause').textContent = player.paused ? 'Resume' : 'Pause';
+  $('btnPause').className = 'btn ' + (player.paused ? 'go' : '');
+  $('rideSelect').style.display = player.active ? 'none' : '';
+  document.body.classList.toggle('riding', player.active);
+  updateBadge(); renderRideSelect();
+}
+function renderDevInfo() {
+  const f = bike.features, pr = bike.powerRange, i = bike.info;
+  const row = (k, v) => `<b>${k}</b><span>${v}</span>`;
+  let h = row('Name', i.name || '–') + row('Manufacturer', i.manufacturer || '–') + row('Model', i.model || '–') + row('Hardware rev', i.hardware || '–') + row('Firmware rev', i.firmware || '–') + row('Software rev', i.software || '–');
+  h += row('FTMS', f ? '<span class="pill ok">present</span>' : '<span class="pill bad">missing / unreadable</span>');
+  if (f) {
+    h += row('Power target (ERG)', f.powerTarget ? '<span class="pill ok">ADVERTISED</span> — still needs verification below' : '<span class="pill bad">NOT ADVERTISED</span> — ERG will not work');
+    h += row('Power / cadence data', `${f.powerMeasurement ? 'power ✓' : 'power ✗'} · ${f.cadence ? 'cadence ✓' : 'cadence ✗'}`);
+    h += row('Machine features', f.machineList.join(', ') || 'none') + row('Target features', f.targetList.join(', ') || 'none');
+    h += row('Raw feature bits', `0x${f.machine.toString(16).padStart(8, '0')} / 0x${f.target.toString(16).padStart(8, '0')}`);
+  }
+  h += row('Power range', pr ? `${pr.min}–${pr.max} W (step ${pr.inc})` : 'not reported');
+  h += row('Generation', 'Not reported over Bluetooth — confirm from the serial sticker or Wattbike Hub (Settings → Wattbike), then note it here.');
+  $('devInfo').innerHTML = h;
+}
+function setAlert(text, cls) { const a = $('alertBar'); a.textContent = text; a.className = text ? 'on ' + cls : ''; }
+
+// Shrink a big number only when it would overflow its box (recomputed only when text length or box width changes).
+function fitBig(el) {
+  const key = el.textContent.length + ':' + el.clientWidth + ':' + window.innerHeight;
+  if (el._fitKey === key) return; el._fitKey = key;
+  el.style.fontSize = '';
+  if (el.scrollWidth > el.clientWidth + 1) {
+    const fs = parseFloat(getComputedStyle(el).fontSize);
+    el.style.fontSize = Math.floor(fs * el.clientWidth / el.scrollWidth * 0.96) + 'px';
+  }
+}
+function fitAll() { document.querySelectorAll('#ride .big .v').forEach(fitBig); }
+window.addEventListener('resize', () => { document.querySelectorAll('#ride .big .v').forEach(e => e._fitKey = null); fitAll(); });
+function colorFor(p, t) { if (p === null || !t) return ''; const r = p / t; return r < 0.95 ? 'c-low' : r > 1.05 ? 'c-high' : 'c-ok'; }
+
+function updateTelemetryCard() {
+  const st = teleStale();
+  $('tPower').textContent = st ? '–' : (tele.power ?? '–');
+  $('tCad').textContent = st || tele.cadence == null ? '–' : Math.round(tele.cadence);
+  $('tSpeed').textContent = st || tele.speed == null ? '–' : tele.speed.toFixed(1);
+  const hz = tele.rateWin.length / 5;
+  $('tRate').textContent = !bike.connected ? 'No data yet.' : st ? 'No data for >3 s (pedal to wake the bike).' : `Receiving ${hz.toFixed(1)} packets/s · ${tele.count} total`;
+  const ack = ergc.lastSentW !== null ? `Last sent ${ergc.lastSentW} W · bike reply: ${ergc.lastResult || '…'}${ergc.statusTarget !== null ? ` · bike reports target ${ergc.statusTarget} W` : ''}` : 'No command sent.';
+  $('ergAck').textContent = ack;
+}
+
+function updateRideUI() {
+  const P = player;
+  const p = smoothedPower();
+  const tgt = P.active ? (P.paused ? (P.ergOn ? settings.pauseW : null) : P.effectiveTarget()) : null;
+  $('rPower').textContent = p ?? '–'; $('rPower').className = 'v ' + (P.active && !P.paused ? colorFor(p, tgt) : '');
+  $('rPowerSub').textContent = `${settings.smooth}s avg${teleStale() ? ' · NO DATA' : ''}`;
+  $('rCad').textContent = teleStale() || tele.cadence == null ? '–' : Math.round(tele.cadence);
+  $('rSpeed').textContent = teleStale() || tele.speed == null ? '–' : tele.speed.toFixed(1);
+  if (!P.active) {
+    $('rTarget').textContent = '–'; $('rErg').textContent = ''; $('rSegLeft').textContent = '–'; $('rSegOf').textContent = ''; $('rTotLeft').textContent = '–'; $('rElapsed').textContent = ''; $('nextLine').textContent = 'Next: —';
+    return;
+  }
+  const s = P.seg();
+  $('rTarget').textContent = tgt ?? '–';
+  let ergTxt;
+  if (!P.ergOn) ergTxt = 'ERG OFF · manual';
+  else if (!bike.connected) ergTxt = 'ERG · bike offline';
+  else if (ergc.lastAckW === P.lastSentTarget) ergTxt = `ERG ✓ bike set ${ergc.lastAckW} W`;
+  else ergTxt = `ERG … waiting for bike (${ergc.lastResult || 'sent'})`;
+  $('rErg').textContent = ergTxt; $('rErg').className = 's ' + (!P.ergOn ? 'c-warn' : ergc.lastAckW === P.lastSentTarget ? 'c-ok' : 'c-warn');
+  $('segName').textContent = P.paused ? `PAUSED · ${s.label}` : s.label + (s.startW !== s.endW ? ` · ramp ${s.startW}→${s.endW} W` : '');
+  $('rSegLeft').textContent = fmtTime(s.dur - P.segT);
+  $('rSegOf').textContent = `${P.idx + 1} of ${P.segs.length}`;
+  $('rTotLeft').textContent = fmtTime(P.total - (s.start + P.segT));
+  $('rElapsed').textContent = 'ridden ' + fmtTime(P.elapsed);
+  const n = P.segs[P.idx + 1];
+  $('nextLine').textContent = n ? `Next: ${n.label} · ${n.startW}${n.endW !== n.startW ? '→' + n.endW : ''} W · ${fmtTime(n.dur)}` : 'Next: finish';
+  // Alerts
+  if (!bike.connected && P.ergOn) { /* set by reconnect */ }
+  else if (P.paused && P.pauseReason === 'cadence') setAlert('AUTO-PAUSED · start pedaling to resume (soft start)', 'warn');
+  else if (P.paused && P.pauseReason === 'disconnect' && bike.connected) setAlert('RECONNECTED · tap Resume to continue', 'warn');
+  else if (P.paused && P.pauseReason === 'background') setAlert('PAUSED while Grift was in the background · tap Resume', 'warn');
+  else if (P.paused) setAlert('PAUSED', 'warn');
+  else if (teleStale()) setAlert('NO DATA FROM BIKE', 'bad');
+  else if (P.lowCadSince && settings.autoPause) setAlert('LOW CADENCE', 'warn');
+  else if (P.ergOn && ergc.failures >= 3) setAlert('BIKE NOT ACCEPTING TARGETS — check log', 'bad');
+  else setAlert('');
+  // profile cursor
+  fitAll();
+  const cur = $('profile').querySelector('#cursor');
+  if (cur) cur.setAttribute('x', (s.start + P.segT) / P.total * 1000);
+}
+
+function renderProfile(svg, segs, total) {
+  if (!segs.length) { svg.innerHTML = ''; return; }
+  const maxW = Math.max(...segs.map(s => Math.max(s.startW, s.endW)), settings.ftp * 1.2);
+  svg.setAttribute('viewBox', '0 0 1000 100');
+  const col = s => { const r = Math.max(s.startW, s.endW) / settings.ftp; return r < 0.6 ? '#666' : r < 0.76 ? '#3fa9ff' : r < 0.9 ? '#2ee66b' : r < 1.05 ? '#ffd21f' : r < 1.2 ? '#ff8c1a' : '#ff4d4d'; };
+  let h = '';
+  for (const s of segs) {
+    const x0 = s.start / total * 1000, x1 = (s.start + s.dur) / total * 1000;
+    const y0 = 100 - s.startW / maxW * 100, y1 = 100 - s.endW / maxW * 100;
+    h += `<polygon points="${x0},100 ${x0},${y0} ${x1},${y1} ${x1},100" fill="${col(s)}" stroke="#000" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+  }
+  const ftpY = 100 - settings.ftp / maxW * 100;
+  h += `<line x1="0" x2="1000" y1="${ftpY}" y2="${ftpY}" stroke="#fff" stroke-dasharray="4 4" stroke-width="1" vector-effect="non-scaling-stroke" opacity=".5"/>`;
+  h += `<rect id="cursor" x="0" y="0" width="3" height="100" fill="#fff"/>`;
+  svg.innerHTML = h;
+}
+
+function renderRideSelect() {
+  const sel = $('rideWorkout'); const cur = sel.value;
+  sel.innerHTML = workouts.map(w => `<option value="${w.id}">${escapeHtml(w.name)}</option>`).join('');
+  if (workouts.some(w => w.id === cur)) sel.value = cur;
+  const w = workouts.find(x => x.id === sel.value);
+  if (w) { const f = flatten(w, settings.ftp, bike.powerRange); $('rideMeta').textContent = `${fmtTime(f.total)} · ${f.segs.length} intervals · FTP ${settings.ftp} W`; if (!player.active) renderProfile($('profile'), f.segs, f.total); }
+  const reasons = [];
+  if (!bike.connected) reasons.push('bike not connected');
+  if (!$('noErg').checked) {
+    if (bike.connected && !(bike.features && bike.features.powerTarget)) reasons.push('bike does not advertise power-target control');
+    if (!ergVerified) reasons.push('ERG not verified yet (tab 1, step 3)');
+    else if (bike.connected && !ergVerifiedForThisBike()) reasons.push('ERG was verified on a different bike or firmware — re-run verification');
+  }
+  $('btnStart').disabled = reasons.length > 0 || player.active;
+  $('startBlock').innerHTML = reasons.length ? '<span class="c-warn">Can’t start: ' + reasons.join('; ') + '.</span>' : '';
+}
+
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+/* ---------------- Builder ---------------- */
+let draft = null;
+function loadDraft(id) {
+  const w = workouts.find(x => x.id === id) || workouts[0];
+  draft = JSON.parse(JSON.stringify(w)); renderBuilder();
+}
+function renderBuilderSelect() {
+  $('bSelect').innerHTML = workouts.map(w => `<option value="${w.id}">${escapeHtml(w.name)}</option>`).join('');
+  if (draft && workouts.some(w => w.id === draft.id)) $('bSelect').value = draft.id;
+}
+function stepHtml(s, path) {
+  const p = path.join('.');
+  const opts = ['warmup', 'steady', 'interval', 'recovery', 'cooldown'].map(t => `<option value="${t}" ${s.type === t ? 'selected' : ''}>${TYPE_LABEL[t]}</option>`).join('');
+  return `<div class="blk ${s.type}" data-path="${p}"><div class="row">
+    <select data-f="type">${opts}</select>
+    <label>Duration <input type="text" data-f="dur" value="${fmtTime(s.dur)}" style="width:80px"></label>
+    <label>Target <input type="number" data-f="from" value="${s.from}" min="0"></label>
+    <select data-f="unit"><option value="ftp" ${s.unit === 'ftp' ? 'selected' : ''}>% FTP</option><option value="w" ${s.unit === 'w' ? 'selected' : ''}>W</option></select>
+    <label>ramp to <input type="number" data-f="to" value="${s.to ?? ''}" min="0" placeholder="—"></label>
+    <span class="muted">${s.unit === 'ftp' ? '≈ ' + toWatts(s.from, 'ftp', settings.ftp) + (s.to !== null && s.to !== '' ? '→' + toWatts(s.to, 'ftp', settings.ftp) : '') + ' W' : ''}</span>
+    <span style="margin-left:auto"></span>
+    <button class="btn sm" data-act="up">↑</button><button class="btn sm" data-act="down">↓</button><button class="btn sm stop" data-act="del">✕</button>
+  </div></div>`;
+}
+function renderBuilder() {
+  renderBuilderSelect();
+  $('bName').value = draft.name;
+  let h = '';
+  draft.blocks.forEach((b, i) => {
+    if (b.kind === 'repeat') {
+      h += `<div class="blk repeat" data-path="${i}"><div class="row"><b>Repeat</b> <input type="number" data-f="count" value="${b.count}" min="1" style="width:70px"> <b>×</b>
+        <span style="margin-left:auto"></span><button class="btn sm" data-act="addstep">+ step</button><button class="btn sm" data-act="up">↑</button><button class="btn sm" data-act="down">↓</button><button class="btn sm stop" data-act="del">✕</button></div>`;
+      b.steps.forEach((s, j) => h += stepHtml(s, [i, j]));
+      h += '</div>';
+    } else h += stepHtml(b, [i]);
+  });
+  $('bBlocks').innerHTML = h || '<p class="muted">No blocks yet.</p>';
+  const f = flatten(draft, settings.ftp, null);
+  renderProfile($('bProfile'), f.segs, f.total);
+  $('bSummary').textContent = `${fmtTime(f.total)} · ${f.segs.length} intervals`;
+}
+function getByPath(path) { const [i, j] = path.split('.').map(Number); return j === undefined ? { arr: draft.blocks, idx: i, obj: draft.blocks[i] } : { arr: draft.blocks[i].steps, idx: j, obj: draft.blocks[i].steps[j] }; }
+$('bBlocks').addEventListener('change', e => {
+  const f = e.target.dataset.f; if (!f) return;
+  const { obj } = getByPath(e.target.closest('[data-path]').dataset.path);
+  let v = e.target.value;
+  if (f === 'dur') { const s = parseMMSS(v); if (!(s > 0)) { $('bMsg').textContent = 'Duration must look like 5:00'; renderBuilder(); return; } v = s; }
+  else if (f === 'from' || f === 'count') v = +v;
+  else if (f === 'to') v = v === '' ? null : +v;
+  obj[f] = v; $('bMsg').textContent = 'Unsaved changes'; renderBuilder();
+});
+$('bBlocks').addEventListener('click', e => {
+  const act = e.target.dataset.act; if (!act) return;
+  const { arr, idx, obj } = getByPath(e.target.closest('[data-path]').dataset.path);
+  if (act === 'del') arr.splice(idx, 1);
+  if (act === 'up' && idx > 0) [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]];
+  if (act === 'down' && idx < arr.length - 1) [arr[idx + 1], arr[idx]] = [arr[idx], arr[idx + 1]];
+  if (act === 'addstep') obj.steps.push(S('recovery', 120, 'ftp', 55));
+  $('bMsg').textContent = 'Unsaved changes'; renderBuilder();
+});
+document.querySelectorAll('[data-add]').forEach(b => b.onclick = () => {
+  const t = b.dataset.add;
+  const presets = { warmup: S('warmup', 600, 'ftp', 45, 75), steady: S('steady', 1200, 'ftp', 70), interval: S('interval', 240, 'ftp', 105), recovery: S('recovery', 180, 'ftp', 55), cooldown: S('cooldown', 420, 'ftp', 60, 40) };
+  draft.blocks.push(t === 'repeat' ? { kind: 'repeat', count: 4, steps: [S('interval', 240, 'ftp', 105), S('recovery', 180, 'ftp', 55)] } : presets[t]);
+  $('bMsg').textContent = 'Unsaved changes'; renderBuilder();
+});
+$('bName').oninput = e => { draft.name = e.target.value; $('bMsg').textContent = 'Unsaved changes'; };
+$('bSave').onclick = () => {
+  const errs = validateWorkout(draft);
+  if (errs.length) { $('bMsg').innerHTML = '<span class="c-high">' + errs.map(escapeHtml).join(' · ') + '</span>'; return; }
+  const i = workouts.findIndex(w => w.id === draft.id);
+  if (i >= 0) workouts[i] = JSON.parse(JSON.stringify(draft)); else workouts.push(JSON.parse(JSON.stringify(draft)));
+  saveWorkouts(); renderBuilderSelect(); renderRideSelect(); $('bMsg').textContent = 'Saved ✓';
+};
+$('bSelect').onchange = e => loadDraft(e.target.value);
+$('bNew').onclick = () => { draft = { id: uid(), name: 'New workout', blocks: [S('warmup', 600, 'ftp', 45, 75), S('cooldown', 300, 'ftp', 55, 40)] }; renderBuilder(); $('bMsg').textContent = 'Unsaved — click Save'; };
+$('bDup').onclick = () => { draft = JSON.parse(JSON.stringify(draft)); draft.id = uid(); draft.name += ' (copy)'; renderBuilder(); $('bMsg').textContent = 'Unsaved copy — click Save'; };
+$('bDel').onclick = async () => {
+  if (!(await ask(`Delete "${draft.name}"?`, 'Delete'))) return;
+  workouts = workouts.filter(w => w.id !== draft.id); if (!workouts.length) workouts = JSON.parse(JSON.stringify(DEFAULTS));
+  saveWorkouts(); loadDraft(workouts[0].id); renderRideSelect();
+};
+$('bExport').onclick = () => download('grift-workouts.json', JSON.stringify(workouts, null, 2), 'application/json');
+$('bImport').onchange = async e => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const arr = JSON.parse(await file.text()); const list = Array.isArray(arr) ? arr : [arr]; let n = 0;
+    for (const w of list) { if (validateWorkout(w).length) continue; w.id = w.id && !workouts.some(x => x.id === w.id) ? w.id : uid(); workouts.push(w); n++; }
+    saveWorkouts(); renderBuilderSelect(); renderRideSelect(); $('bMsg').textContent = `Imported ${n} workout(s).`;
+  } catch (err) { $('bMsg').textContent = 'Import failed: ' + err.message; }
+  e.target.value = '';
+};
+async function download(name, text, type) {
+  if (IS_IOS && navigator.share && window.File) {
+    for (const t of [type, 'text/plain']) {
+      try {
+        const f = new File([text], name, { type: t });
+        if (navigator.canShare && !navigator.canShare({ files: [f] })) continue;
+        await navigator.share({ files: [f], title: name });
+        return;
+      } catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+  }
+  saveBlob(name, text, type);
+}
+function saveBlob(name, text, type) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
+
+/* ---------------- History ---------------- */
+async function renderHistory() {
+  let rides = [];
+  try { rides = await DB.all(); } catch (e) { log('History unavailable: ' + e.message, 'bad'); }
+  rides.sort((a, b) => b.date.localeCompare(a.date));
+  const tb = $('hTable').querySelector('tbody');
+  tb.innerHTML = rides.map(r => `<tr data-id="${r.id}"><td>${new Date(r.date).toLocaleString()}</td><td>${escapeHtml(r.name)}${r.completed ? '' : ' <span class="pill warn">partial</span>'}${r.erg ? '' : ' <span class="pill warn">no ERG</span>'}</td><td>${fmtTime(r.summary.dur)}</td><td>${r.summary.avg}</td><td>${r.summary.np}</td><td>${r.summary.kj}</td><td>${r.summary.IF}</td><td>${r.summary.cad}</td>
+    <td><button class="btn sm" data-h="view">View</button> <button class="btn sm pri" data-h="tcx">TCX</button> <button class="btn sm" data-h="csv">CSV</button> <button class="btn sm stop" data-h="del">✕</button></td></tr>`).join('') || '<tr><td colspan="9" class="muted">No rides yet.</td></tr>';
+  tb.onclick = async e => {
+    const act = e.target.dataset.h; if (!act) return;
+    const id = e.target.closest('tr').dataset.id; const r = rides.find(x => x.id === id);
+    if (act === 'del') { if (await ask('Delete this ride?', 'Delete')) { await DB.del(id); renderHistory(); $('hDetail').style.display = 'none'; } }
+    if (act === 'csv') download(`ride-${r.date.slice(0, 16).replace(/[:T]/g, '-')}.csv`, 'sec,power_w,target_w,cadence_rpm,speed_kmh\n' + r.samples.map(s => s.map(v => v ?? '').join(',')).join('\n'), 'text/csv');
+    if (act === 'tcx') exportTCX(r);
+    if (act === 'view') showRide(r);
+  };
+}
+function exportTCX(r) {
+  if (!r || !r.samples || !r.samples.length) { tell('This ride has no recorded data.'); return; }
+  download(tcxFileName(r), buildTCX(r), 'application/vnd.garmin.tcx+xml');
+}
+function showRide(r) {
+  $('hDetail').style.display = ''; $('hTitle').textContent = `${r.name} · ${new Date(r.date).toLocaleString()} · avg ${r.summary.avg} W · NP ${r.summary.np} W · TSS ${r.summary.tss}`;
+  const svg = $('hChart'); const n = r.samples.length; if (!n) return;
+  const maxP = Math.max(100, ...r.samples.map(s => Math.max(s[1] || 0, s[2] || 0))) * 1.05;
+  svg.setAttribute('viewBox', `0 0 ${n} 100`);
+  const line = (k, sc) => r.samples.map((s, i) => s[k] == null ? null : `${i},${(100 - s[k] / sc * 100).toFixed(1)}`).filter(Boolean).join(' ');
+  svg.innerHTML = `<polyline points="${line(2, maxP)}" fill="none" stroke="#ffd21f" stroke-width="2" vector-effect="non-scaling-stroke"/>
+    <polyline points="${line(3, 150)}" fill="none" stroke="#3fa9ff" stroke-width="1" vector-effect="non-scaling-stroke" opacity=".7"/>
+    <polyline points="${line(1, maxP)}" fill="none" stroke="#fff" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
+}
+
+/* ---------------- Wiring ---------------- */
+document.querySelectorAll('header .tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('header .tab').forEach(x => x.classList.toggle('on', x === t));
+  document.querySelectorAll('main section').forEach(s => s.classList.toggle('on', s.id === t.dataset.tab));
+  if (t.dataset.tab === 'hist') renderHistory();
+  if (t.dataset.tab === 'ride') renderRideSelect();
+});
+$('btnConnect').onclick = connect;
+$('btnDisconnect').onclick = disconnect;
+$('btnReqCtl').onclick = () => ergc.requestControl();
+$('btnSetW').onclick = () => { const w = +$('manualW').value; if (w >= 0) { log(`Manual target ${w} W`); ergc.setTarget(w); } };
+$('btnVerify').onclick = runVerification;
+$('btnVerifyAbort').onclick = () => verify.abort = true;
+$('btnCopyLog').onclick = () => { navigator.clipboard && navigator.clipboard.writeText(logLines.join('\n')).then(() => log('Log copied.')); };
+$('rideWorkout').onchange = renderRideSelect;
+$('noErg').onchange = renderRideSelect;
+$('doneClose').onclick = () => $('doneCard').classList.remove('on');
+$('btnStart').onclick = () => {
+  $('doneCard').classList.remove('on');
+  const w = workouts.find(x => x.id === $('rideWorkout').value); if (!w) return;
+  beep(1); // unlock audio on user gesture
+  player.start(w, !$('noErg').checked);
+};
+$('btnPause').onclick = () => player.paused ? player.resume(false) : player.pause('user');
+$('btnSkip').onclick = () => player.skip();
+$('btnEnd').onclick = async () => { if (await ask('End workout and save?', 'End & save')) player.finish(false); };
+$('btnFull').onclick = () => {
+  try {
+    const d = document.documentElement;
+    const p = document.fullscreenElement ? document.exitFullscreen() : (d.requestFullscreen ? d.requestFullscreen() : null);
+    if (p && p.catch) p.catch(() => { });
+  } catch (e) { }
+};
+
+function bindSetting(id, key, conv) {
+  const el = $(id);
+  if (el.type === 'checkbox') { el.checked = !!settings[key]; el.onchange = () => { settings[key] = el.checked; saveSettings(); }; }
+  else { el.value = settings[key]; el.onchange = () => { const v = conv(el.value); if (!isNaN(v)) { settings[key] = v; saveSettings(); renderRideSelect(); if (draft) renderBuilder(); } }; }
+}
+bindSetting('setFtp', 'ftp', Number); bindSetting('setSmooth', 'smooth', Number); bindSetting('setPauseW', 'pauseW', Number);
+bindSetting('setAutoPause', 'autoPause'); bindSetting('setCadMin', 'cadMin', Number); bindSetting('setCadSec', 'cadSec', Number);
+
+// UI refresh loop for telemetry (independent of workout timer)
+setInterval(() => { updateTelemetryCard(); if (!player.active) updateRideUI(); }, 250);
+
+$('btSupport').innerHTML = btSupportText();
+$('iosHint').classList.toggle('on', IS_IOS);
+if (!(document.documentElement.requestFullscreen && document.fullscreenEnabled)) { $('btnFull').style.display = 'none'; $('rideCtl').style.gridTemplateColumns = 'repeat(3,1fr)'; }
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(e => log('Offline cache unavailable: ' + e.message, 'warn'));
+renderErgBadge(); updateButtons(); loadDraft(workouts[0].id); renderHistory();
+log('Grift ready. ' + (('bluetooth' in navigator) ? 'Click "Connect Wattbike Atom".' : 'This browser has no Web Bluetooth.'));
+</script>
+</body>
+</html>
