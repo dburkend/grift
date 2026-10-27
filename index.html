@@ -214,6 +214,40 @@ th{color:var(--dim)}
     </div>
   </div>
 
+  <div class="card" id="stravaCard">
+    <h2>Strava</h2>
+    <div id="stravaStatus" class="muted">Not connected.</div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn pri" id="stvConnect">Connect Strava</button>
+      <button class="btn" id="stvDisconnect" style="display:none">Disconnect</button>
+      <label><input type="checkbox" id="stvAuto"> Upload automatically when a workout finishes</label>
+    </div>
+    <details id="stvSetup" style="margin-top:12px">
+      <summary style="cursor:pointer;font-weight:800">One-time setup: your Strava API keys</summary>
+      <ol class="muted" style="margin:8px 0 10px 18px;padding:0">
+        <li>On a computer or in Safari, sign in at <b>strava.com/settings/api</b> and create an app (name <i>Grift</i>, category <i>Training</i>; any icon, e.g. this app's icon).</li>
+        <li>Set <b>Website</b> to <code id="stvSite"></code> and <b>Authorization Callback Domain</b> to <code id="stvDomain"></code>.</li>
+        <li>Copy the <b>Client ID</b> and <b>Client Secret</b> into the boxes below, tap <b>Save keys</b>, then <b>Connect Strava</b>.</li>
+      </ol>
+      <div class="row">
+        <label>Client ID <input type="text" id="stvId" inputmode="numeric" autocomplete="off" style="width:120px"></label>
+        <label>Client Secret <input type="password" id="stvSecret" autocomplete="off" style="width:260px"></label>
+        <button class="btn sm" id="stvSaveKeys">Save keys</button>
+      </div>
+      <p class="muted">Keys and tokens are stored only in this browser on this device — never in the app's code or on GitHub. Set up each device (iPhone, iPad) separately.</p>
+      <div class="row">
+        <label>Have a code from another browser? <input type="text" id="stvPasteCode" autocomplete="off" style="width:220px" placeholder="paste code"></label>
+        <button class="btn sm" id="stvUseCode">Use code</button>
+      </div>
+    </details>
+  </div>
+
+  <div class="card" id="stvHandoff" style="display:none;border-color:var(--warn)">
+    <h2>Finish connecting in Bluefy</h2>
+    <p class="muted">Strava sent you back to a different browser than the one Grift is set up in. Copy this code, switch back to Grift in Bluefy, open <b>Strava → One-time setup</b>, paste it into “Have a code…”, and tap <b>Use code</b> within a few minutes.</p>
+    <div class="row"><code id="stvHandoffCode" style="font-size:18px;word-break:break-all"></code><button class="btn sm" id="stvCopyCode">Copy code</button></div>
+  </div>
+
   <div class="card">
     <h2>Connection log</h2>
     <div class="row" style="margin-bottom:8px"><button class="btn sm" id="btnCopyLog">Copy log</button></div>
@@ -233,7 +267,7 @@ th{color:var(--dim)}
     <div id="startBlock" class="muted" style="margin-top:6px"></div>
   </div>
   <div id="alertBar"></div>
-  <div id="doneCard"><svg viewBox="0 0 64 64"><defs><linearGradient id="ggb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF2D8A"/><stop offset="1" stop-color="#8F5BFF"/></linearGradient></defs><path d="M14 3 H61 Q63 3 62.5 5 L52 59 Q51.6 61 49.5 61 H3 Q1 61 1.5 59 L12 5 Q12.4 3 14 3Z" fill="url(#ggb)"/><g transform="translate(9.5 3.5) scale(.86) skewX(-10)"><path d="M45.5 17.5 A19.5 19.5 0 1 0 51.5 31" fill="none" stroke="#fff" stroke-width="7.5" stroke-linecap="round"/><rect x="31" y="35" width="5" height="6" rx="1" fill="#fff"/><rect x="38" y="26" width="5" height="15" rx="1" fill="#fff"/><rect x="45" y="31" width="6" height="10" rx="1" fill="#fff"/></g></svg><div class="dtitle" id="doneTitle"></div><div class="muted" id="doneStats"></div><div class="row" style="justify-content:center;margin-top:12px"><button class="btn pri" id="doneTcx">Export for Strava (.tcx)</button><button class="btn" id="doneClose">Close</button></div></div>
+  <div id="doneCard"><svg viewBox="0 0 64 64"><defs><linearGradient id="ggb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF2D8A"/><stop offset="1" stop-color="#8F5BFF"/></linearGradient></defs><path d="M14 3 H61 Q63 3 62.5 5 L52 59 Q51.6 61 49.5 61 H3 Q1 61 1.5 59 L12 5 Q12.4 3 14 3Z" fill="url(#ggb)"/><g transform="translate(9.5 3.5) scale(.86) skewX(-10)"><path d="M45.5 17.5 A19.5 19.5 0 1 0 51.5 31" fill="none" stroke="#fff" stroke-width="7.5" stroke-linecap="round"/><rect x="31" y="35" width="5" height="6" rx="1" fill="#fff"/><rect x="38" y="26" width="5" height="15" rx="1" fill="#fff"/><rect x="45" y="31" width="6" height="10" rx="1" fill="#fff"/></g></svg><div class="dtitle" id="doneTitle"></div><div class="muted" id="doneStats"></div><div id="doneStravaMsg" style="margin-top:8px;font-weight:700"></div><div class="row" style="justify-content:center;margin-top:12px"><button class="btn pri" id="doneStrava">Send to Strava</button><button class="btn" id="doneTcx">Export .tcx</button><button class="btn" id="doneClose">Close</button></div></div>
   <div id="segName">—</div>
   <div class="grid">
     <div class="big xl"><div class="l">Power</div><div class="v" id="rPower">–</div><div class="s" id="rPowerSub"></div></div>
@@ -287,7 +321,7 @@ th{color:var(--dim)}
 <section id="hist">
   <div class="card">
     <div class="row"><h2 style="margin:0">Completed workouts</h2><span class="muted">Stored on this device in the browser.</span></div>
-    <table id="hTable"><thead><tr><th>Date</th><th>Workout</th><th>Time</th><th>Avg W</th><th>NP</th><th>kJ</th><th>IF</th><th>Cad</th><th></th></tr></thead><tbody></tbody></table>
+    <table id="hTable"><thead><tr><th>Date</th><th>Workout</th><th>Time</th><th>Avg W</th><th>NP</th><th>kJ</th><th>IF</th><th>Cad</th><th>Strava</th><th></th></tr></thead><tbody></tbody></table>
   </div>
   <div class="card" id="hDetail" style="display:none">
     <h2 id="hTitle"></h2>
@@ -516,7 +550,26 @@ function buildTCX(ride) {
 }
 function tcxFileName(ride) { const d = new Date(ride.date); const p = n => String(n).padStart(2, '0'); return `Grift ${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}${p(d.getMinutes())} ${String(ride.name).replace(/×/g, 'x').replace(/[^\w\- ]+/g, '').trim()}.tcx`; }
 
-if (typeof module !== 'undefined') module.exports = { buildTCX, tcxFileName, UUID, parseFeatures, parsePowerRange, parseIndoorBikeData, parseControlResponse, parseMachineStatus, cmdRequestControl, cmdReset, cmdStart, cmdSetTargetPower, flatten, targetAt, validateWorkout, fmtTime, parseMMSS, summarize, judgeStep, judgeVerification, toWatts };
+/* ---- Strava helpers (pure) ---- */
+const STRAVA = { AUTH: 'https://www.strava.com/oauth/authorize', TOKEN: 'https://www.strava.com/api/v3/oauth/token', UPLOADS: 'https://www.strava.com/api/v3/uploads', ACTIVITY: 'https://www.strava.com/activities/' };
+function stravaAuthUrl(clientId, redirectUri, state) {
+  const q = new URLSearchParams({ client_id: String(clientId).trim(), redirect_uri: redirectUri, response_type: 'code', approval_prompt: 'auto', scope: 'activity:write', state });
+  return STRAVA.AUTH + '?' + q.toString();
+}
+function stravaNeedsRefresh(tok, nowSec) { return !tok || !tok.access_token || !tok.expires_at || tok.expires_at - nowSec < 3600; }
+// Strava duplicate errors look like: "...duplicate of <a href='/activities/123'>..." or "duplicate of activity 123"
+function stravaDuplicateId(msg) {
+  if (!msg || !/duplicate/i.test(msg)) return null;
+  const m = String(msg).match(/activities\/(\d+)/) || String(msg).match(/activity\s+(\d+)/i);
+  return m ? m[1] : 'unknown';
+}
+function stravaDescription(ride) {
+  const s = ride.summary || {}; const bits = ['Grift' + (ride.erg ? ' · ERG' : '')];
+  if (s.avg) bits.push(`avg ${s.avg} W`); if (s.np) bits.push(`NP ${s.np} W`); if (s.IF) bits.push(`IF ${s.IF}`); if (s.tss) bits.push(`TSS ${s.tss}`);
+  return bits.join(' · ');
+}
+
+if (typeof module !== 'undefined') module.exports = { STRAVA, stravaAuthUrl, stravaNeedsRefresh, stravaDuplicateId, stravaDescription, buildTCX, tcxFileName, UUID, parseFeatures, parsePowerRange, parseIndoorBikeData, parseControlResponse, parseMachineStatus, cmdRequestControl, cmdReset, cmdStart, cmdSetTargetPower, flatten, targetAt, validateWorkout, fmtTime, parseMMSS, summarize, judgeStep, judgeVerification, toWatts };
 </script>
 
 <!-- ======================================================================
@@ -561,6 +614,7 @@ const DB = {
   },
   async tx(mode, fn) { const db = await this.open(); return new Promise((res, rej) => { const t = db.transaction('rides', mode); const st = t.objectStore('rides'); const out = fn(st); t.oncomplete = () => res(out && out.result !== undefined ? out.result : out); t.onerror = () => rej(t.error); }); },
   put(r) { return this.tx('readwrite', st => st.put(r)); },
+  async get(id) { const db = await this.open(); return new Promise((res, rej) => { const q = db.transaction('rides').objectStore('rides').get(id); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
   del(id) { return this.tx('readwrite', st => st.delete(id)); },
   async all() { const db = await this.open(); return new Promise((res, rej) => { const q = db.transaction('rides').objectStore('rides').getAll(); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
 };
@@ -979,18 +1033,22 @@ const player = {
     if (!this.active) return;
     clearInterval(this.timer); this.active = false; this.paused = false;
     if (this.ergOn && bike.connected) { ergc.setTarget(Math.max(settings.pauseW, bike.powerRange ? bike.powerRange.min : 0)); }
-    await this.save(true, completed);
+    const rec = await this.save(true, completed);
+    this._finalRec = rec || null;
     this.releaseWake();
     log(`Workout ${completed ? 'completed' : 'ended early'}. Saved ${this.samples.length} s of data.`, 'ok');
     setAlert(''); updateRideUI(); updateButtons(); renderHistory();
     $('segName').textContent = '';
     showDone(completed);
+    if (rec && settings.stravaAuto && strava.connected()) doneUpload(rec);
   },
   async save(final, completed) {
     if (!this.samples.length) return;
     const sum = summarize(this.samples, settings.ftp);
     const rec = { id: this.rideId, date: this.startedAt, name: this.workout.name, ftp: settings.ftp, erg: this.ergOn, completed: !!completed, final: !!final, plannedSec: this.total, workout: this.workout, summary: sum, samples: this.samples };
+    try { const old = await DB.get(rec.id); if (old && old.strava) rec.strava = old.strava; } catch (e) { }
     try { await DB.put(rec); } catch (e) { log('Saving ride failed: ' + e.message, 'bad'); }
+    return rec;
   },
   lastRide() { return { id: this.rideId, date: this.startedAt, name: this.workout.name, erg: this.ergOn, samples: this.samples, summary: summarize(this.samples, settings.ftp) }; },
   async acquireWake() {
@@ -1013,7 +1071,11 @@ function showDone(completed) {
   $('doneTitle').textContent = completed ? 'Workout complete' : 'Workout ended';
   $('doneStats').textContent = r.samples.length ? `${r.name} · ${fmtTime(s.dur)} · avg ${s.avg} W · NP ${s.np} W · ${s.kj} kJ · TSS ${s.tss}` : 'No data was recorded.';
   $('doneTcx').disabled = !r.samples.length;
-  $('doneTcx').onclick = () => exportTCX(r);
+  $('doneTcx').onclick = () => exportTCX(player._finalRec || r);
+  $('doneStravaMsg').textContent = ''; $('doneStravaMsg').className = '';
+  $('doneStrava').disabled = !r.samples.length;
+  $('doneStrava').textContent = 'Send to Strava';
+  $('doneStrava').onclick = () => doneUpload(player._finalRec || r);
   $('doneCard').classList.add('on');
 }
 function ask(msg, yesLabel = 'OK', noLabel = 'Cancel') {
@@ -1057,6 +1119,7 @@ function updateButtons() {
   $('rideSelect').style.display = player.active ? 'none' : '';
   document.body.classList.toggle('riding', player.active);
   updateBadge(); renderRideSelect();
+  if ($('stvConnect')) $('stvConnect').disabled = !strava.keys() || player.active;
 }
 function renderDevInfo() {
   const f = bike.features, pr = bike.powerRange, i = bike.info;
@@ -1286,6 +1349,163 @@ async function download(name, text, type) {
 }
 function saveBlob(name, text, type) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
 
+/* ---------------- Strava ---------------- */
+const strava = {
+  keys() { return LS.get('stravaKeys', null); },          // {id, secret}
+  tok() { return LS.get('stravaTok', null); },            // {access_token, refresh_token, expires_at, athlete, scope}
+  connected() { const t = this.tok(); return !!(t && t.refresh_token); },
+  redirectUri() { return location.origin + location.pathname; },
+  async tokenRequest(params) {
+    const k = this.keys(); if (!k) throw new Error('Strava keys not set');
+    const body = new URLSearchParams(Object.assign({ client_id: k.id, client_secret: k.secret }, params));
+    let r;
+    try { r = await fetch(STRAVA.TOKEN, { method: 'POST', body }); }
+    catch (e) { throw new Error('Could not reach Strava (offline, or Strava blocked the request from this browser).'); }
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error((j.message || 'Strava error ' + r.status) + (j.errors ? ' — ' + j.errors.map(x => x.field + ' ' + x.code).join(', ') : ''));
+    return j;
+  },
+  store(j, prev) {
+    const t = { access_token: j.access_token, refresh_token: j.refresh_token || (prev && prev.refresh_token), expires_at: j.expires_at, scope: j.scope || (prev && prev.scope) || '',
+      athlete: j.athlete ? { id: j.athlete.id, name: [j.athlete.firstname, j.athlete.lastname].filter(Boolean).join(' ') } : (prev && prev.athlete) || null };
+    LS.set('stravaTok', t); return t;
+  },
+  async exchange(code, scopeFromRedirect) {
+    if (scopeFromRedirect !== undefined && scopeFromRedirect !== null && !/activity:write/.test(scopeFromRedirect)) throw new Error('Strava permission “Upload your activities” was unticked. Connect again and leave it ticked.');
+    const j = await this.tokenRequest({ code: code.trim(), grant_type: 'authorization_code' });
+    const t = this.store(j, null);
+    log(`Strava connected${t.athlete ? ' as ' + t.athlete.name : ''}.`, 'ok'); return t;
+  },
+  async access() {
+    let t = this.tok(); if (!t || !t.refresh_token) throw new Error('Strava is not connected.');
+    if (stravaNeedsRefresh(t, Date.now() / 1000)) { t = this.store(await this.tokenRequest({ grant_type: 'refresh_token', refresh_token: t.refresh_token }), t); log('Strava token refreshed.'); }
+    return t.access_token;
+  },
+  // Try with an Authorization header; if the browser blocks it (CORS preflight), retry with the token as a parameter.
+  async api(url, opts, formData) {
+    const tok = await this.access();
+    try {
+      const r = await fetch(url, Object.assign({}, opts, { headers: { Authorization: 'Bearer ' + tok }, body: formData }));
+      return r;
+    } catch (e) {
+      log('Strava request with header failed (' + e.message + '); retrying with token parameter.', 'warn');
+      if (formData) { formData.set('access_token', tok); return fetch(url, Object.assign({}, opts, { body: formData })); }
+      return fetch(url + (url.includes('?') ? '&' : '?') + 'access_token=' + encodeURIComponent(tok), opts);
+    }
+  },
+  disconnect() { LS.set('stravaTok', null); log('Strava disconnected on this device.'); },
+};
+
+// Upload a ride; returns {ok, activityId, msg}. Saves result on the ride record.
+async function uploadToStrava(ride, onStatus) {
+  const say = m => { onStatus && onStatus(m); };
+  if (!ride || !ride.samples || !ride.samples.length) return { ok: false, msg: 'No ride data to upload.' };
+  if (ride.strava && ride.strava.activityId) return { ok: true, activityId: ride.strava.activityId, msg: 'Already on Strava.' };
+  if (!navigator.onLine) return fail('You are offline. Try again when connected — the ride is saved.');
+  function fail(msg) { log('Strava upload: ' + msg, 'bad'); say(msg); return { ok: false, msg }; }
+  try {
+    say('Uploading to Strava…');
+    const fd = new FormData();
+    fd.append('file', new Blob([buildTCX(ride)], { type: 'application/xml' }), tcxFileName(ride));
+    fd.append('data_type', 'tcx');
+    fd.append('name', ride.name);
+    fd.append('description', stravaDescription(ride));
+    fd.append('trainer', '1');
+    fd.append('sport_type', 'VirtualRide');
+    fd.append('external_id', 'grift-' + ride.id + '.tcx');
+    let r = await strava.api(STRAVA.UPLOADS, { method: 'POST' }, fd);
+    let j = await r.json().catch(() => ({}));
+    if (r.status === 401) return fail('Strava rejected the login. Disconnect and connect Strava again.');
+    if (!r.ok && !(j && j.error)) return fail((j && (j.message || j.error)) || 'Strava error ' + r.status);
+    for (let i = 0; i < 40; i++) {
+      if (j.error) {
+        const dup = stravaDuplicateId(j.error);
+        if (dup) { await markUploaded(ride, dup === 'unknown' ? null : dup); say('Already on Strava (duplicate).'); return { ok: true, activityId: dup, msg: 'Already on Strava.' }; }
+        return fail(String(j.error).replace(/<[^>]+>/g, ''));
+      }
+      if (j.activity_id) { await markUploaded(ride, String(j.activity_id)); log('Uploaded to Strava: activity ' + j.activity_id, 'ok'); say('On Strava ✓'); return { ok: true, activityId: String(j.activity_id), msg: 'On Strava ✓' }; }
+      const upId = j.id_str || j.id; if (!upId) return fail('Unexpected reply from Strava.');
+      say('Strava is processing the ride…');
+      await new Promise(z => setTimeout(z, 1500));
+      r = await strava.api(STRAVA.UPLOADS + '/' + upId, { method: 'GET' });
+      j = await r.json().catch(() => ({}));
+      if (!r.ok && !j.error) return fail('Strava error ' + r.status + ' while checking the upload.');
+    }
+    return fail('Strava is still processing — check your Strava feed in a minute.');
+  } catch (e) { return fail(e.message); }
+}
+async function markUploaded(ride, activityId) {
+  ride.strava = { activityId, uploadedAt: new Date().toISOString() };
+  try { const rec = await DB.get(ride.id); if (rec) { rec.strava = ride.strava; await DB.put(rec); } } catch (e) { }
+}
+function stravaLink(id) { return id ? `<a href="${STRAVA.ACTIVITY}${encodeURIComponent(id)}" target="_blank" rel="noopener" style="color:#FC6A3F;font-weight:800">View ↗</a>` : '<span class="c-ok">✓</span>'; }
+function stravaCell(r) {
+  if (r.strava) return stravaLink(r.strava.activityId);
+  return strava.connected() ? '<button class="btn sm" data-h="strava">Send</button>' : '<span class="muted">—</span>';
+}
+async function doneUpload(ride) {
+  if (!strava.connected()) {
+    $('doneStravaMsg').innerHTML = 'Strava isn’t connected on this device yet — set it up in tab 1 (Bike &amp; Test → Strava), then send it from History.';
+    $('doneStravaMsg').className = 'c-warn'; return;
+  }
+  $('doneStrava').disabled = true; $('doneStravaMsg').className = '';
+  const res = await uploadToStrava(ride, m => $('doneStravaMsg').textContent = m);
+  if (res.ok) { $('doneStravaMsg').innerHTML = 'On Strava ✓ ' + (res.activityId && res.activityId !== 'unknown' ? stravaLink(res.activityId) : ''); $('doneStravaMsg').className = 'c-ok'; $('doneStrava').textContent = 'Sent ✓'; }
+  else { $('doneStravaMsg').textContent = res.msg + ' You can retry, or use Export .tcx.'; $('doneStravaMsg').className = 'c-high'; $('doneStrava').disabled = false; $('doneStrava').textContent = 'Retry Strava'; }
+  renderHistory();
+}
+function renderStrava() {
+  const k = strava.keys(), t = strava.tok(), c = strava.connected();
+  $('stvSite').textContent = strava.redirectUri(); $('stvDomain').textContent = location.hostname || '(open Grift from its web address)';
+  $('stvId').value = k ? k.id : ''; $('stvSecret').value = k ? k.secret : '';
+  $('stvAuto').checked = !!settings.stravaAuto;
+  $('stvConnect').style.display = c ? 'none' : ''; $('stvDisconnect').style.display = c ? '' : 'none';
+  $('stvConnect').disabled = !k || player.active;
+  $('stravaStatus').innerHTML = c ? `<span class="pill ok">CONNECTED</span> ${t.athlete ? escapeHtml(t.athlete.name) : ''}` :
+    (k ? '<span class="pill warn">KEYS SAVED</span> Tap Connect Strava to sign in and allow uploads.' : '<span class="pill bad">NOT SET UP</span> Open the one-time setup below.');
+  if (!k) $('stvSetup').open = true;
+}
+async function handleStravaRedirect() {
+  const q = new URLSearchParams(location.search);
+  if (!q.has('code') && !q.has('error')) return;
+  const code = q.get('code'), scope = q.get('scope'), state = q.get('state'), err = q.get('error');
+  history.replaceState(null, '', location.pathname);
+  if (err) { log('Strava connection cancelled (' + err + ').', 'warn'); tell('Strava connection was cancelled.'); return; }
+  const expected = LS.get('stravaState', null);
+  if (!strava.keys() || !expected) {
+    // Landed in a different browser (e.g. Strava app opened Safari). Hand the code back to Bluefy.
+    $('stvHandoff').style.display = ''; $('stvHandoffCode').textContent = code;
+    document.querySelector('[data-tab=setup]').click(); $('stvHandoff').scrollIntoView(); return;
+  }
+  if (state !== expected) { log('Strava state mismatch — ignoring code.', 'bad'); tell('Strava sign-in could not be verified. Please tap Connect Strava again.'); return; }
+  LS.set('stravaState', null);
+  try { await strava.exchange(code, scope); renderStrava(); renderHistory(); tell('Strava connected. Rides can now be sent straight to Strava.'); }
+  catch (e) { log('Strava connect failed: ' + e.message, 'bad'); tell('Strava connect failed: ' + e.message); }
+  document.querySelector('[data-tab=setup]').click(); $('stravaCard').scrollIntoView();
+}
+$('stvSaveKeys').onclick = () => {
+  const id = $('stvId').value.trim(), secret = $('stvSecret').value.trim();
+  if (!/^\d+$/.test(id) || secret.length < 20) { tell('That doesn’t look right: Client ID is a number and the Client Secret is a long string of letters and numbers.'); return; }
+  LS.set('stravaKeys', { id, secret }); log('Strava keys saved on this device.', 'ok'); renderStrava();
+};
+$('stvConnect').onclick = () => {
+  const k = strava.keys(); if (!k) { renderStrava(); return; }
+  if (player.active) { tell('Finish or end the workout before connecting Strava.'); return; }
+  const state = Math.random().toString(36).slice(2) + Date.now().toString(36);
+  LS.set('stravaState', state);
+  location.href = stravaAuthUrl(k.id, strava.redirectUri(), state);
+};
+$('stvDisconnect').onclick = async () => { if (await ask('Disconnect Strava on this device?', 'Disconnect')) { strava.disconnect(); renderStrava(); renderHistory(); } };
+$('stvAuto').onchange = e => { settings.stravaAuto = e.target.checked; saveSettings(); };
+$('stvUseCode').onclick = async () => {
+  const raw = $('stvPasteCode').value.trim(); if (!raw) return;
+  let code = raw, scope = null;
+  try { if (/^https?:/.test(raw)) { const u = new URL(raw); code = u.searchParams.get('code') || raw; scope = u.searchParams.get('scope'); } } catch (e) { }
+  try { await strava.exchange(code, scope); $('stvPasteCode').value = ''; renderStrava(); renderHistory(); tell('Strava connected.'); }
+  catch (e) { tell('Strava connect failed: ' + e.message); }
+};
+$('stvCopyCode').onclick = () => { try { navigator.clipboard.writeText($('stvHandoffCode').textContent); $('stvCopyCode').textContent = 'Copied ✓'; } catch (e) { } };
+
 /* ---------------- History ---------------- */
 async function renderHistory() {
   let rides = [];
@@ -1293,13 +1513,15 @@ async function renderHistory() {
   rides.sort((a, b) => b.date.localeCompare(a.date));
   const tb = $('hTable').querySelector('tbody');
   tb.innerHTML = rides.map(r => `<tr data-id="${r.id}"><td>${new Date(r.date).toLocaleString()}</td><td>${escapeHtml(r.name)}${r.completed ? '' : ' <span class="pill warn">partial</span>'}${r.erg ? '' : ' <span class="pill warn">no ERG</span>'}</td><td>${fmtTime(r.summary.dur)}</td><td>${r.summary.avg}</td><td>${r.summary.np}</td><td>${r.summary.kj}</td><td>${r.summary.IF}</td><td>${r.summary.cad}</td>
-    <td><button class="btn sm" data-h="view">View</button> <button class="btn sm pri" data-h="tcx">TCX</button> <button class="btn sm" data-h="csv">CSV</button> <button class="btn sm stop" data-h="del">✕</button></td></tr>`).join('') || '<tr><td colspan="9" class="muted">No rides yet.</td></tr>';
+    <td>${stravaCell(r)}</td>
+    <td><button class="btn sm" data-h="view">View</button> <button class="btn sm pri" data-h="tcx">TCX</button> <button class="btn sm" data-h="csv">CSV</button> <button class="btn sm stop" data-h="del">✕</button></td></tr>`).join('') || '<tr><td colspan="10" class="muted">No rides yet.</td></tr>';
   tb.onclick = async e => {
     const act = e.target.dataset.h; if (!act) return;
     const id = e.target.closest('tr').dataset.id; const r = rides.find(x => x.id === id);
     if (act === 'del') { if (await ask('Delete this ride?', 'Delete')) { await DB.del(id); renderHistory(); $('hDetail').style.display = 'none'; } }
     if (act === 'csv') download(`ride-${r.date.slice(0, 16).replace(/[:T]/g, '-')}.csv`, 'sec,power_w,target_w,cadence_rpm,speed_kmh\n' + r.samples.map(s => s.map(v => v ?? '').join(',')).join('\n'), 'text/csv');
     if (act === 'tcx') exportTCX(r);
+    if (act === 'strava') { e.target.disabled = true; e.target.textContent = 'Uploading…'; await uploadToStrava(r); renderHistory(); }
     if (act === 'view') showRide(r);
   };
 }
@@ -1367,7 +1589,7 @@ $('btSupport').innerHTML = btSupportText();
 $('iosHint').classList.toggle('on', IS_IOS);
 if (!(document.documentElement.requestFullscreen && document.fullscreenEnabled)) { $('btnFull').style.display = 'none'; $('rideCtl').style.gridTemplateColumns = 'repeat(3,1fr)'; }
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(e => log('Offline cache unavailable: ' + e.message, 'warn'));
-renderErgBadge(); updateButtons(); loadDraft(workouts[0].id); renderHistory();
+renderErgBadge(); updateButtons(); loadDraft(workouts[0].id); renderHistory(); renderStrava(); handleStravaRedirect();
 log('Grift ready. ' + (('bluetooth' in navigator) ? 'Click "Connect Wattbike Atom".' : 'This browser has no Web Bluetooth.'));
 </script>
 </body>
