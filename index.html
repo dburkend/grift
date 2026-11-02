@@ -83,6 +83,11 @@ th{color:var(--dim)}
 #ride .big .s{color:var(--dim);font-size:clamp(13px,1.6vw,20px);font-weight:700;min-height:1.3em}
 #segName{font-size:clamp(20px,3.4vw,40px);font-weight:900;text-align:center;margin:6px 0}
 #nextLine{font-size:clamp(16px,2.4vw,28px);font-weight:800;color:var(--dim);text-align:center}
+#freeStart{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+#freeCtl{display:none;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+body.free #freeCtl{display:grid}
+#freeCtl .btn{padding:22px 10px;font-size:clamp(22px,4vw,34px);font-weight:900;font-variant-numeric:tabular-nums}
+body.free #profile,body.free #btnSkip{display:none}
 #alertBar{display:none;font-weight:900;font-size:clamp(18px,3vw,32px);text-align:center;padding:10px;border-radius:10px;margin-bottom:10px}
 #alertBar.on{display:block}
 #alertBar.bad{background:var(--bad);color:#000}#alertBar.warn{background:var(--warn);color:#000}
@@ -132,6 +137,7 @@ th{color:var(--dim)}
   body.riding #profile{height:44px;margin:6px 0}
   body.riding #rideCtl .btn{padding:10px 6px;font-size:16px}
   body.riding #rideFoot{display:none}
+  body.riding #freeCtl{margin-top:6px}body.riding #freeCtl .btn{padding:10px 8px;font-size:22px}
 }
 </style>
 </head>
@@ -266,6 +272,12 @@ th{color:var(--dim)}
       <label><input type="checkbox" id="noErg"> Ride without ERG (targets shown only, bike stays in manual)</label>
     </div>
     <div id="startBlock" class="muted" style="margin-top:6px"></div>
+    <div class="row" id="freeStart">
+      <b>Free ride</b>
+      <label>Start target <input type="number" id="freeW" min="0" max="2000" step="5"> W</label>
+      <button class="btn go" id="btnFree">Start free ride</button>
+      <span class="muted">No intervals: change the target with − / + (5 W steps), or ↑ / ↓ on a keyboard.</span>
+    </div>
   </div>
   <div id="alertBar"></div>
   <div id="doneCard"><svg viewBox="0 0 64 64"><defs><linearGradient id="ggb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF2D8A"/><stop offset="1" stop-color="#8F5BFF"/></linearGradient></defs><path d="M14 3 H61 Q63 3 62.5 5 L52 59 Q51.6 61 49.5 61 H3 Q1 61 1.5 59 L12 5 Q12.4 3 14 3Z" fill="url(#ggb)"/><g transform="translate(9.5 3.5) scale(.86) skewX(-10)"><path d="M45.5 17.5 A19.5 19.5 0 1 0 51.5 31" fill="none" stroke="#fff" stroke-width="7.5" stroke-linecap="round"/><rect x="31" y="35" width="5" height="6" rx="1" fill="#fff"/><rect x="38" y="26" width="5" height="15" rx="1" fill="#fff"/><rect x="45" y="31" width="6" height="10" rx="1" fill="#fff"/></g></svg><div class="dtitle" id="doneTitle"></div><div class="muted" id="doneStats"></div><div id="doneStravaMsg" style="margin-top:8px;font-weight:700"></div><div class="row" style="justify-content:center;margin-top:12px"><button class="btn pri" id="doneStrava">Send to Strava</button><button class="btn" id="doneTcx">Export .tcx</button><a class="btn" id="doneStravaUpload" href="https://www.strava.com/upload/select" target="_blank" rel="noopener" style="text-decoration:none;display:none">Open Strava upload ↗</a><button class="btn" id="doneClose">Close</button></div></div>
@@ -274,9 +286,10 @@ th{color:var(--dim)}
     <div class="big xl"><div class="l">Power</div><div class="v" id="rPower">–</div><div class="s" id="rPowerSub"></div></div>
     <div class="big xl"><div class="l">Target</div><div class="v" id="rTarget">–</div><div class="s" id="rErg"></div></div>
     <div class="big"><div class="l">Cadence</div><div class="v" id="rCad">–</div><div class="s">rpm</div></div>
-    <div class="big xl" id="rSegLeftBox"><div class="l">Interval left</div><div class="v" id="rSegLeft">–</div><div class="s" id="rSegOf"></div></div>
-    <div class="big"><div class="l">Total left</div><div class="v" id="rTotLeft">–</div><div class="s" id="rElapsed"></div></div>
+    <div class="big xl" id="rSegLeftBox"><div class="l" id="rSegLeftLbl">Interval left</div><div class="v" id="rSegLeft">–</div><div class="s" id="rSegOf"></div></div>
+    <div class="big"><div class="l" id="rTotLbl">Total left</div><div class="v" id="rTotLeft">–</div><div class="s" id="rElapsed"></div></div>
   </div>
+  <div id="freeCtl"><button class="btn" id="freeDown" aria-label="Lower target 5 watts">− 5 W</button><button class="btn" id="freeUp" aria-label="Raise target 5 watts">+ 5 W</button></div>
   <div id="nextLine" style="margin-top:8px">Next: —</div>
   <svg id="profile" preserveAspectRatio="none"></svg>
   <div id="rideCtl">
@@ -944,6 +957,7 @@ const player = {
   start(workout, ergOn) {
     const { segs, total } = flatten(workout, settings.ftp, bike.powerRange);
     if (!segs.length) return;
+    if (!this._startingFree) this.free = false;
     Object.assign(this, { active: true, paused: false, pauseReason: '', workout, segs, total, idx: 0, segT: 0, elapsed: 0, samples: [], sampleAcc: 0, ergOn, softFrom: null, lowCadSince: null, cadOkSince: null, rideId: uid(), startedAt: new Date().toISOString(), lastSentTarget: null, lastAutosave: now() });
     this.lastTick = now();
     this.beginSoft(Math.min(segs[0].startW, settings.pauseW + 40));
@@ -951,6 +965,25 @@ const player = {
     this.acquireWake();
     log(`Workout started: ${workout.name} (${fmtTime(total)}, ERG ${ergOn ? 'ON' : 'OFF'})`, 'ok');
     renderProfile($('profile'), segs, total); updateRideUI(); updateButtons();
+  },
+  startFree(startW, ergOn) {
+    const w = clampW(Math.round(startW / 5) * 5, bike.powerRange);
+    const workout = { id: 'free', name: 'Free ride', blocks: [{ kind: 'step', type: 'steady', dur: 6 * 3600, unit: 'w', from: w, to: null }] };
+    this.free = true; this._startingFree = true;
+    try { this.start(workout, ergOn); } finally { this._startingFree = false; }
+    this.segs[0].label = 'Free ride';
+    settings.freeW = w; saveSettings();
+  },
+  adjustFree(delta) {
+    if (!this.active || !this.free) return;
+    const s = this.seg();
+    const max = bike.powerRange ? bike.powerRange.max : 2000, min = bike.powerRange ? Math.max(0, bike.powerRange.min) : 0;
+    const w = Math.max(min, Math.min(max, s.startW + delta));
+    if (w === s.startW) return;
+    s.startW = s.endW = w; settings.freeW = w; saveSettings();
+    this.softFrom = null;
+    if (!this.paused && this.ergOn && bike.connected) { this.lastSentTarget = w; ergc.setTarget(w); }
+    updateRideUI();
   },
   seg() { return this.segs[this.idx]; },
   baseTarget() { const s = this.seg(); return s ? targetAt(s, this.segT) : 0; },
@@ -1046,7 +1079,7 @@ const player = {
   async save(final, completed) {
     if (!this.samples.length) return;
     const sum = summarize(this.samples, settings.ftp);
-    const rec = { id: this.rideId, date: this.startedAt, name: this.workout.name, ftp: settings.ftp, erg: this.ergOn, completed: !!completed, final: !!final, plannedSec: this.total, workout: this.workout, summary: sum, samples: this.samples };
+    const rec = { id: this.rideId, date: this.startedAt, name: this.workout.name, ftp: settings.ftp, erg: this.ergOn, completed: !!completed, final: !!final, plannedSec: this.free ? this.samples.length : this.total, workout: this.workout, free: !!this.free, summary: sum, samples: this.samples };
     try { const old = await DB.get(rec.id); if (old && old.strava) rec.strava = old.strava; } catch (e) { }
     try { await DB.put(rec); } catch (e) { log('Saving ride failed: ' + e.message, 'bad'); }
     return rec;
@@ -1069,7 +1102,8 @@ window.addEventListener('beforeunload', e => { if (player.active) { player.save(
 
 function showDone(completed) {
   const r = player.lastRide(), s = r.summary;
-  $('doneTitle').textContent = completed ? 'Workout complete' : 'Workout ended';
+  $('doneTitle').textContent = player.free ? 'Free ride saved' : completed ? 'Workout complete' : 'Workout ended';
+  $('freeW').value = settings.freeW || $('freeW').value;
   $('doneStats').textContent = r.samples.length ? `${r.name} · ${fmtTime(s.dur)} · avg ${s.avg} W · NP ${s.np} W · ${s.kj} kJ · TSS ${s.tss}` : 'No data was recorded.';
   $('doneTcx').disabled = !r.samples.length;
   $('doneTcx').onclick = () => exportTCX(player._finalRec || r);
@@ -1124,6 +1158,9 @@ function updateButtons() {
   $('btnPause').className = 'btn ' + (player.paused ? 'go' : '');
   $('rideSelect').style.display = player.active ? 'none' : '';
   document.body.classList.toggle('riding', player.active);
+  document.body.classList.toggle('free', player.active && !!player.free);
+  layoutRideCtl();
+  $('btnEnd').textContent = player.active && player.free ? 'End ride' : 'End workout';
   updateBadge(); renderRideSelect();
   if ($('stvConnect')) $('stvConnect').disabled = !strava.keys() || player.active;
 }
@@ -1189,6 +1226,19 @@ function updateRideUI() {
   else if (ergc.lastAckW === P.lastSentTarget) ergTxt = `ERG ✓ bike set ${ergc.lastAckW} W`;
   else ergTxt = `ERG … waiting for bike (${ergc.lastResult || 'sent'})`;
   $('rErg').textContent = ergTxt; $('rErg').className = 's ' + (!P.ergOn ? 'c-warn' : ergc.lastAckW === P.lastSentTarget ? 'c-ok' : 'c-warn');
+  $('rSegLeftLbl').textContent = P.free ? 'Ride time' : 'Interval left';
+  $('rTotLbl').textContent = P.free ? 'Avg power' : 'Total left';
+  if (P.free) {
+    $('segName').textContent = P.paused ? 'PAUSED · Free ride' : 'Free ride';
+    $('rSegLeft').textContent = fmtTime(P.elapsed);
+    const pw = P.samples.map(x => x[1]).filter(v => v != null);
+    const avg = pw.length ? Math.round(pw.reduce((a, b) => a + b, 0) / pw.length) : null;
+    $('rSegOf').textContent = pw.length ? Math.round(pw.reduce((a, b) => a + b, 0) / 1000) + ' kJ' : '';
+    $('rTotLeft').textContent = avg ?? '–';
+    $('rElapsed').textContent = 'W';
+    $('nextLine').textContent = P.paused ? `Resumes at ${s.startW} W · − / + still adjust the target` : 'Tap − / + to change the target by 5 W';
+    $('freeDown').disabled = s.startW <= (bike.powerRange ? Math.max(0, bike.powerRange.min) : 0);
+  } else {
   $('segName').textContent = P.paused ? `PAUSED · ${s.label}` : s.label + (s.startW !== s.endW ? ` · ramp ${s.startW}→${s.endW} W` : '');
   $('rSegLeft').textContent = fmtTime(s.dur - P.segT);
   $('rSegOf').textContent = `${P.idx + 1} of ${P.segs.length}`;
@@ -1196,6 +1246,7 @@ function updateRideUI() {
   $('rElapsed').textContent = 'ridden ' + fmtTime(P.elapsed);
   const n = P.segs[P.idx + 1];
   $('nextLine').textContent = n ? `Next: ${n.label} · ${n.startW}${n.endW !== n.startW ? '→' + n.endW : ''} W · ${fmtTime(n.dur)}` : 'Next: finish';
+  }
   // Alerts
   if (!bike.connected && P.ergOn) { /* set by reconnect */ }
   else if (P.paused && P.pauseReason === 'cadence') setAlert('AUTO-PAUSED · start pedaling to resume (soft start)', 'warn');
@@ -1209,7 +1260,7 @@ function updateRideUI() {
   // profile cursor
   fitAll();
   const cur = $('profile').querySelector('#cursor');
-  if (cur) cur.setAttribute('x', (s.start + P.segT) / P.total * 1000);
+  if (cur && !P.free) cur.setAttribute('x', (s.start + P.segT) / P.total * 1000);
 }
 
 function renderProfile(svg, segs, total) {
@@ -1243,9 +1294,15 @@ function renderRideSelect() {
     else if (bike.connected && !ergVerifiedForThisBike()) reasons.push('ERG was verified on a different bike or firmware — re-run verification');
   }
   $('btnStart').disabled = reasons.length > 0 || player.active;
+  $('btnFree').disabled = reasons.length > 0 || player.active;
   $('startBlock').innerHTML = reasons.length ? '<span class="c-warn">Can’t start: ' + reasons.join('; ') + '.</span>' : '';
 }
 
+function layoutRideCtl() {
+  const vis = ['btnPause', 'btnSkip', 'btnEnd', 'btnFull'].filter(id => getComputedStyle($(id)).display !== 'none').length;
+  $('rideCtl').style.gridTemplateColumns = `repeat(${window.innerWidth <= 760 && vis > 3 ? 2 : vis},1fr)`;
+}
+window.addEventListener('resize', layoutRideCtl);
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
 /* ---------------- Builder ---------------- */
@@ -1570,7 +1627,22 @@ $('btnStart').onclick = () => {
 };
 $('btnPause').onclick = () => player.paused ? player.resume(false) : player.pause('user');
 $('btnSkip').onclick = () => player.skip();
-$('btnEnd').onclick = async () => { if (await ask('End workout and save?', 'End & save')) player.finish(false); };
+$('freeW').value = settings.freeW || Math.round(settings.ftp * 0.6 / 5) * 5;
+$('btnFree').onclick = () => {
+  const w = +$('freeW').value;
+  if (!(w >= 0)) { tell('Enter a starting target in watts.'); return; }
+  $('doneCard').classList.remove('on');
+  beep(1);
+  player.startFree(w, !$('noErg').checked);
+};
+$('freeDown').onclick = () => player.adjustFree(-5);
+$('freeUp').onclick = () => player.adjustFree(5);
+document.addEventListener('keydown', e => {
+  if (!player.active || !player.free || /INPUT|SELECT|TEXTAREA/.test(document.activeElement && document.activeElement.tagName)) return;
+  if (e.key === 'ArrowUp' || e.key === '+' || e.key === '=') { e.preventDefault(); player.adjustFree(5); }
+  if (e.key === 'ArrowDown' || e.key === '-' || e.key === '_') { e.preventDefault(); player.adjustFree(-5); }
+});
+$('btnEnd').onclick = async () => { if (await ask(player.free ? 'End free ride and save?' : 'End workout and save?', 'End & save')) player.finish(!!player.free); };
 $('btnFull').onclick = () => {
   try {
     const d = document.documentElement;
@@ -1592,7 +1664,8 @@ setInterval(() => { updateTelemetryCard(); if (!player.active) updateRideUI(); }
 
 $('btSupport').innerHTML = btSupportText();
 $('iosHint').classList.toggle('on', IS_IOS);
-if (!(document.documentElement.requestFullscreen && document.fullscreenEnabled)) { $('btnFull').style.display = 'none'; $('rideCtl').style.gridTemplateColumns = 'repeat(3,1fr)'; }
+if (!(document.documentElement.requestFullscreen && document.fullscreenEnabled)) $('btnFull').style.display = 'none';
+layoutRideCtl();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(e => log('Offline cache unavailable: ' + e.message, 'warn'));
 renderErgBadge(); updateButtons(); loadDraft(workouts[0].id); renderHistory(); renderStrava(); handleStravaRedirect();
 log('Grift ready. ' + (('bluetooth' in navigator) ? 'Click "Connect Wattbike Atom".' : 'This browser has no Web Bluetooth.'));
