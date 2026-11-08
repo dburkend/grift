@@ -199,6 +199,7 @@ body.report #segName,body.report #ride .grid,body.report #freeCtl,body.report #n
       <label><input type="checkbox" id="showAll"> Show all Bluetooth devices (if the Atom isn't listed)</label>
     </div>
     <p class="muted">Close MyWhoosh, Zwift and the Wattbike Hub app on every device first. On the Next Gen Atom with dual Bluetooth, the <b>last</b> app to connect gets control; anything else connected can block or steal ERG.</p>
+    <div id="connMsg" class="muted" style="margin-top:8px;font-weight:700"></div>
     <div id="btSupport" class="muted"></div>
     <div id="iosHint" class="muted" style="margin-top:8px">
       <b>iPhone / iPad checklist:</b> keep Grift on screen during rides (switching apps or locking the phone pauses the workout); set <i>Settings → Display &amp; Brightness → Auto-Lock</i> to <i>Never</i> while riding; turn the ring/silent switch off if you want interval beeps; in Bluefy you can add Grift to your Home Screen from its menu.
@@ -386,12 +387,14 @@ body.report #segName,body.report #ride .grid,body.report #freeCtl,body.report #n
      CORE: pure logic (no DOM, no Bluetooth). Unit-tested separately.
      ====================================================================== -->
 <script id="core">
-const UUID = {
+// Full 128-bit UUID strings: accepted by every Web Bluetooth implementation (Bluefy's iOS bridge is pickier about 16-bit numbers).
+const BT16 = n => '0000' + n.toString(16).padStart(4, '0') + '-0000-1000-8000-00805f9b34fb';
+const UUID = Object.fromEntries(Object.entries({
   FTMS: 0x1826, FEATURE: 0x2acc, BIKE_DATA: 0x2ad2, CONTROL: 0x2ad9, STATUS: 0x2ada,
   TRAINING_STATUS: 0x2ad3, POWER_RANGE: 0x2ad8, RES_RANGE: 0x2ad6,
   DIS: 0x180a, MANUF: 0x2a29, MODEL: 0x2a24, HW: 0x2a27, FW: 0x2a26, SW: 0x2a28,
   CPS: 0x1818, BATTERY: 0x180f,
-};
+}).map(([k, v]) => [k, BT16(v)]));
 const MACHINE_FEATURES = ['Average Speed','Cadence','Total Distance','Inclination','Elevation Gain','Pace','Step Count','Resistance Level','Stride Count','Expended Energy','Heart Rate','Metabolic Equivalent','Elapsed Time','Remaining Time','Power Measurement','Force on Belt & Power','User Data Retention'];
 const TARGET_FEATURES = ['Speed target','Inclination target','Resistance target','Power target (ERG)','Heart-rate target','Energy target','Step target','Stride target','Distance target','Training-time target','2-zone HR','3-zone HR','5-zone HR','Indoor bike simulation','Wheel circumference','Spin-down control','Cadence target'];
 const CP_OP = { REQUEST_CONTROL: 0x00, RESET: 0x01, SET_TARGET_POWER: 0x05, START: 0x07, STOP_PAUSE: 0x08, RESPONSE: 0x80 };
@@ -775,18 +778,40 @@ function btSupportText() {
   return '<span class="pill ok">Web Bluetooth available</span>';
 }
 
+function connMsg(html, cls) { $('connMsg').innerHTML = html || ''; $('connMsg').className = cls ? 'c-' + cls : 'muted'; }
 async function connect() {
-  if (!('bluetooth' in navigator)) { log('Web Bluetooth not available in this browser.', 'bad'); return; }
+  log('Connect tapped. Browser: ' + navigator.userAgent);
+  if (!('bluetooth' in navigator)) {
+    log('Web Bluetooth not available in this browser.', 'bad');
+    connMsg(IS_IOS ? 'This browser has no Bluetooth access. On iPhone/iPad, open Grift in the <b>Bluefy</b> app (not Safari, Chrome, or a Home Screen icon added from Safari).' : 'This browser has no Web Bluetooth. Use Chrome or Edge.', 'high');
+    return;
+  }
+  const optionalServices = [UUID.FTMS, UUID.CPS, UUID.DIS, UUID.BATTERY];
   const opts = $('showAll').checked
-    ? { acceptAllDevices: true, optionalServices: [UUID.FTMS, UUID.CPS, UUID.DIS, UUID.BATTERY] }
-    : { filters: [{ services: [UUID.FTMS] }, { namePrefix: 'Wattbike' }, { namePrefix: 'ATOM' }, { namePrefix: 'Atom' }], optionalServices: [UUID.FTMS, UUID.CPS, UUID.DIS, UUID.BATTERY] };
+    ? { acceptAllDevices: true, optionalServices }
+    : { filters: [{ services: [UUID.FTMS] }, { namePrefix: 'Wattbike' }, { namePrefix: 'ATOM' }], optionalServices };
+  connMsg('Looking for bikes… pick your Wattbike from the list.');
   try {
-    const dev = await navigator.bluetooth.requestDevice(opts);
+    let dev;
+    try { dev = await navigator.bluetooth.requestDevice(opts); }
+    catch (e) {
+      // Some iOS bridges reject multi-filter requests outright (TypeError) instead of showing the picker: retry with the simplest filter.
+      if (e && e.name === 'TypeError' && !$('showAll').checked) { log('Picker rejected filters (' + e.message + '); retrying with FTMS filter only.', 'warn'); dev = await navigator.bluetooth.requestDevice({ filters: [{ services: [UUID.FTMS] }], optionalServices }); }
+      else throw e;
+    }
+    connMsg('Connecting to ' + escapeHtml(dev.name || 'bike') + '…');
     bike.device = dev; bike.userDisconnect = false;
     dev.addEventListener('gattserverdisconnected', onDisconnected);
     log(`Selected device "${dev.name || '(no name)'}" id=${dev.id}`);
     await setupGatt();
-  } catch (e) { log('Connect cancelled/failed: ' + e.message, 'bad'); updateBadge(); }
+    connMsg(bike.connected ? 'Connected ✓' : '', bike.connected ? 'ok' : null);
+  } catch (e) {
+    const name = e && e.name, msg = (e && e.message) || String(e);
+    log(`Connect cancelled/failed: ${name}: ${msg}`, 'bad'); updateBadge();
+    if (name === 'NotFoundError' && /cancel/i.test(msg)) connMsg('Cancelled. If the Atom wasn’t in the list, pedal for a few seconds to wake it, close MyWhoosh/Zwift/Wattbike Hub, or tick “Show all Bluetooth devices” and try again.', 'warn');
+    else if (name === 'NotFoundError') connMsg('No bike found. Pedal to wake the Atom, make sure no other app is connected, then try again — or tick “Show all Bluetooth devices”.', 'warn');
+    else connMsg(`Couldn’t connect: <b>${escapeHtml(name || 'Error')}</b> — ${escapeHtml(msg)}. Tap <b>Copy log</b> below and send it to me.`, 'high');
+  }
 }
 
 async function setupGatt() {
