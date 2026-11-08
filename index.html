@@ -36,7 +36,7 @@ header .tab.on{background:var(--brand-grad);border-color:transparent;color:#fff;
 .brand .tag{font-weight:800;font-style:italic;font-size:9px;letter-spacing:.2em;color:#fff;margin-top:3px}
 #doneCard{display:none;text-align:center;padding:24px;border:2px solid var(--brand-b);border-radius:14px;margin:10px 0}
 #doneCard.on{display:block}
-#doneCard svg{width:64px;height:64px}
+#doneCard>svg{width:64px;height:64px}
 #doneCard .dtitle{font-style:italic;font-size:clamp(22px,4vw,40px);font-weight:900;margin:8px 0}
 @media (max-width:560px){.brand .tag{display:none}}
 #connBadge{margin-left:auto;font-weight:800;padding:8px 12px;border-radius:8px;border:2px solid var(--line);flex:0 1 auto;min-width:0;max-width:30vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -89,6 +89,42 @@ th{color:var(--dim)}
 body.free #freeCtl{display:grid}
 #freeCtl .btn{padding:22px 10px;font-size:clamp(22px,4vw,34px);font-weight:900;font-variant-numeric:tabular-nums}
 body.free #profile,body.free #btnSkip{display:none}
+/* kJ tracker */
+.kjbar{position:relative;height:10px;border-radius:6px;background:#222;margin:6px 4px 2px;overflow:visible}
+.kjbar i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--brand-grad);width:0;transition:width .4s}
+.kjbar b{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1px;background:#fff;border-radius:2px;display:none}
+.kjbar.done i{background:var(--ok)}
+/* post-ride report */
+body.report #segName,body.report #ride .grid,body.report #freeCtl,body.report #nextLine,body.report #profile,body.report #rideCtl,body.report #rideFoot{display:none!important}
+.rep{text-align:left;margin-top:14px}
+.rep h3{margin:22px 0 8px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.rep-top{display:grid;grid-template-columns:minmax(400px,440px) 1fr;gap:18px;align-items:center}
+.rings{display:flex;gap:14px;align-items:center}
+.rings svg{width:170px;height:170px;flex:none}
+.ringleg{min-width:190px}.ringleg div{margin:6px 0;line-height:1.2;white-space:nowrap}
+.ringleg .k{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+.ringleg .n{font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
+.ringleg .p{font-size:13px;color:var(--dim)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{background:#000;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.stat .k{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.stat .n{font-size:26px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat .u{font-size:12px;color:var(--dim)}
+.pchart{position:relative;background:#000;border:1px solid var(--line);border-radius:10px;padding:6px 6px 20px}
+.pchart svg{display:block;width:100%;height:190px}
+.pchart .ax{position:absolute;bottom:3px;font-size:11px;color:var(--dim)}
+.pchart .ftp{position:absolute;right:10px;font-size:11px;color:var(--dim)}
+.zbar{display:flex;height:22px;border-radius:6px;overflow:hidden;background:#222}
+.zrows{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 14px;margin-top:8px;font-size:13px}
+.zrows span i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}
+.peaks{display:grid;grid-template-columns:repeat(4,minmax(0,140px));gap:8px}
+.iv{display:grid;grid-template-columns:minmax(90px,140px) 1fr 150px;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid #1d1d1d;font-size:14px}
+.iv .bar{position:relative;height:16px;background:#1a1a1a;border-radius:4px}
+.iv .bar i{position:absolute;left:0;top:2px;bottom:2px;border-radius:3px}
+.iv .bar b{position:absolute;top:-3px;bottom:-3px;width:3px;background:#fff;border-radius:2px}
+.iv .r{text-align:right;font-variant-numeric:tabular-nums}
+.repbtns{justify-content:center;margin-top:18px}
+@media (max-width:760px){.rep-top{grid-template-columns:1fr}.peaks{grid-template-columns:repeat(4,1fr)}.peaks .stat{padding:6px}.peaks .n{font-size:20px}.peaks .u{font-size:10px}.ringleg{min-width:0}.ringleg div{white-space:normal}.rings{justify-content:center}.stats{grid-template-columns:repeat(2,1fr)}.iv{grid-template-columns:80px 1fr 112px;font-size:13px}}
 #alertBar{display:none;font-weight:900;font-size:clamp(18px,3vw,32px);text-align:center;padding:10px;border-radius:10px;margin-bottom:10px}
 #alertBar.on{display:block}
 #alertBar.bad{background:var(--bad);color:#000}#alertBar.warn{background:var(--warn);color:#000}
@@ -263,6 +299,7 @@ body.free #profile,body.free #btnSkip{display:none}
 
 <!-- ================= RIDE ================= -->
 <section id="ride">
+  <div id="doneCard"><svg viewBox="0 0 64 64"><defs><linearGradient id="ggb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF2D8A"/><stop offset="1" stop-color="#8F5BFF"/></linearGradient></defs><path d="M14 3 H61 Q63 3 62.5 5 L52 59 Q51.6 61 49.5 61 H3 Q1 61 1.5 59 L12 5 Q12.4 3 14 3Z" fill="url(#ggb)"/><g transform="translate(9.5 3.5) scale(.86) skewX(-10)"><path d="M45.5 17.5 A19.5 19.5 0 1 0 51.5 31" fill="none" stroke="#fff" stroke-width="7.5" stroke-linecap="round"/><rect x="31" y="35" width="5" height="6" rx="1" fill="#fff"/><rect x="38" y="26" width="5" height="15" rx="1" fill="#fff"/><rect x="45" y="31" width="6" height="10" rx="1" fill="#fff"/></g></svg><div class="dtitle" id="doneTitle"></div><div class="muted" id="doneStats"></div><div id="doneReport"></div><div id="doneStravaMsg" style="margin-top:8px;font-weight:700"></div><div class="row repbtns"><button class="btn" id="doneShare">Share ride card</button><button class="btn pri" id="doneStrava">Send to Strava</button><button class="btn" id="doneTcx">Export .tcx</button><a class="btn" id="doneStravaUpload" href="https://www.strava.com/upload/select" target="_blank" rel="noopener" style="text-decoration:none;display:none">Open Strava upload ↗</a><button class="btn" id="doneClose">Close</button></div></div>
   <div class="card" id="rideSelect">
     <div class="row">
       <label>Workout <select id="rideWorkout"></select></label>
@@ -274,12 +311,12 @@ body.free #profile,body.free #btnSkip{display:none}
     <div class="row" id="freeStart">
       <b>Free ride</b>
       <label>Start target <input type="number" id="freeW" min="0" max="2000" step="5"> W</label>
+      <label>kJ goal <input type="number" id="freeKj" min="0" step="10" placeholder="optional"></label>
       <button class="btn go" id="btnFree">Start free ride</button>
       <span class="muted">No intervals: change the target with − / + (5 W steps), or ↑ / ↓ on a keyboard.</span>
     </div>
   </div>
   <div id="alertBar"></div>
-  <div id="doneCard"><svg viewBox="0 0 64 64"><defs><linearGradient id="ggb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF2D8A"/><stop offset="1" stop-color="#8F5BFF"/></linearGradient></defs><path d="M14 3 H61 Q63 3 62.5 5 L52 59 Q51.6 61 49.5 61 H3 Q1 61 1.5 59 L12 5 Q12.4 3 14 3Z" fill="url(#ggb)"/><g transform="translate(9.5 3.5) scale(.86) skewX(-10)"><path d="M45.5 17.5 A19.5 19.5 0 1 0 51.5 31" fill="none" stroke="#fff" stroke-width="7.5" stroke-linecap="round"/><rect x="31" y="35" width="5" height="6" rx="1" fill="#fff"/><rect x="38" y="26" width="5" height="15" rx="1" fill="#fff"/><rect x="45" y="31" width="6" height="10" rx="1" fill="#fff"/></g></svg><div class="dtitle" id="doneTitle"></div><div class="muted" id="doneStats"></div><div id="doneStravaMsg" style="margin-top:8px;font-weight:700"></div><div class="row" style="justify-content:center;margin-top:12px"><button class="btn pri" id="doneStrava">Send to Strava</button><button class="btn" id="doneTcx">Export .tcx</button><a class="btn" id="doneStravaUpload" href="https://www.strava.com/upload/select" target="_blank" rel="noopener" style="text-decoration:none;display:none">Open Strava upload ↗</a><button class="btn" id="doneClose">Close</button></div></div>
   <div id="segName">—</div>
   <div class="grid">
     <div class="big xl hero"><div class="l">Power</div><div class="v" id="rPower">–</div><div class="s" id="rPowerSub"></div></div>
@@ -287,7 +324,7 @@ body.free #profile,body.free #btnSkip{display:none}
     <div class="big"><div class="l">Cadence</div><div class="v" id="rCad">–</div><div class="s">rpm</div></div>
     <div class="big xl" id="rSegLeftBox"><div class="l" id="rSegLeftLbl">Interval left</div><div class="v" id="rSegLeft">–</div><div class="s" id="rSegOf"></div></div>
     <div class="big"><div class="l" id="rTotLbl">Total left</div><div class="v" id="rTotLeft">–</div><div class="s" id="rElapsed"></div></div>
-    <div class="big" id="rKjBox"><div class="l">Energy</div><div class="v" id="rKj">–</div><div class="s">kJ</div></div>
+    <div class="big" id="rKjBox"><div class="l">Energy kJ</div><div class="v" id="rKj">–</div><div class="kjbar" id="rKjBar"><i id="rKjFill"></i><b id="rKjPace"></b></div><div class="s" id="rKjOf">kJ</div></div>
   </div>
   <div id="freeCtl"><button class="btn" id="freeDown" aria-label="Lower target 5 watts">− 5 W</button><button class="btn" id="freeUp" aria-label="Raise target 5 watts">+ 5 W</button></div>
   <div id="nextLine" style="margin-top:8px">Next: —</div>
@@ -338,9 +375,8 @@ body.free #profile,body.free #btnSkip{display:none}
     <table id="hTable"><thead><tr><th>Date</th><th>Workout</th><th>Time</th><th>Avg W</th><th>NP</th><th>kJ</th><th>IF</th><th>Cad</th><th>Strava</th><th></th></tr></thead><tbody></tbody></table>
   </div>
   <div class="card" id="hDetail" style="display:none">
-    <h2 id="hTitle"></h2>
-    <svg id="hChart" preserveAspectRatio="none" style="width:100%;height:220px;display:block;background:#000;border:1px solid var(--line);border-radius:10px"></svg>
-    <p class="muted">White = power, yellow = target, blue = cadence (right scale).</p>
+    <div class="row"><h2 id="hTitle" style="margin:0"></h2><span style="margin-left:auto"></span><button class="btn sm" id="hShare">Share ride card</button><button class="btn sm" id="hClose">Close</button></div>
+    <div id="hReport"></div>
   </div>
 </section>
 </main>
@@ -492,7 +528,82 @@ function parseMMSS(str) {
   return p.reduce((a, v) => a * 60 + v, 0);
 }
 
-// samples: [[t, power, target, cadence, speed], ...] at 1 Hz
+/* ---- Planning: kJ and TSS from targets × time ---- */
+function segKJ(s) { return (s.startW + s.endW) / 2 * s.dur / 1000; }
+function plannedKJ(segs) { return segs.reduce((a, s) => a + segKJ(s), 0); }
+// planned kJ completed by workout time t (seconds)
+function plannedKJAt(segs, t) {
+  let j = 0;
+  for (const s of segs) {
+    if (t <= s.start) break;
+    const d = Math.min(s.dur, t - s.start), wEnd = s.startW + (s.endW - s.startW) * d / s.dur;
+    j += (s.startW + wEnd) / 2 * d;
+  }
+  return j / 1000;
+}
+function plannedTSS(segs, ftp) {
+  const arr = []; for (const s of segs) for (let i = 0; i < s.dur; i++) arr.push([arr.length, targetAt(s, i)]);
+  return arr.length ? summarize(arr, ftp).tss : 0;
+}
+
+/* ---- Ride analysis ---- */
+const ZONES = [
+  { n: 'Z1', name: 'Recovery', hi: 0.55, c: '#8a8a8a' }, { n: 'Z2', name: 'Endurance', hi: 0.75, c: '#3fa9ff' },
+  { n: 'Z3', name: 'Tempo', hi: 0.90, c: '#2ee66b' }, { n: 'Z4', name: 'Threshold', hi: 1.05, c: '#ffd21f' },
+  { n: 'Z5', name: 'VO2 max', hi: 1.20, c: '#ff8c1a' }, { n: 'Z6', name: 'Anaerobic', hi: 1.50, c: '#ff4d4d' },
+  { n: 'Z7', name: 'Sprint', hi: Infinity, c: '#C23CFF' }];
+function zoneOf(w, ftp) { const r = w / ftp; for (let i = 0; i < ZONES.length; i++) if (r <= ZONES[i].hi) return i; return ZONES.length - 1; }
+function timeInZones(samples, ftp) { const t = ZONES.map(() => 0); for (const s of samples) if (s[1] != null) t[zoneOf(s[1], ftp)]++; return t; }
+function peakPowers(samples, durs = [5, 60, 300, 1200]) {
+  const pw = samples.map(s => s[1] ?? 0), out = {};
+  for (const d of durs) {
+    if (pw.length < d) continue;
+    let sum = 0, best = 0;
+    for (let i = 0; i < pw.length; i++) { sum += pw[i]; if (i >= d) sum -= pw[i - d]; if (i >= d - 1 && sum / d > best) best = sum / d; }
+    out[d] = Math.round(best);
+  }
+  return out;
+}
+const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
+// samples carry the interval index in s[5]; compares actual vs commanded target, ignoring the first 10 s of each interval (ramp-in)
+function intervalScores(samples, segs) {
+  const by = new Map();
+  for (const s of samples) { if (s[5] == null) continue; if (!by.has(s[5])) by.set(s[5], []); by.get(s[5]).push(s); }
+  const out = [];
+  for (const [idx, arr] of by) {
+    const seg = segs[idx]; if (!seg) continue;
+    const use = arr.slice(Math.min(10, Math.floor(arr.length * 0.2)));
+    const pw = use.map(s => s[1]).filter(v => v != null), tg = use.map(s => s[2]).filter(v => v != null);
+    if (pw.length < 5 || !tg.length) continue;
+    const avg = mean(pw), tgt = mean(tg), dev = tgt ? (avg - tgt) / tgt : 0;
+    out.push({ idx, label: seg.label, type: seg.type, secs: arr.length, planned: seg.dur, avg: Math.round(avg), target: Math.round(tgt),
+      cad: Math.round(mean(use.map(s => s[3]).filter(v => v > 0))), dev, hit: Math.abs(dev) <= 0.05, cut: arr.length < seg.dur * 0.8 });
+  }
+  return out.sort((a, b) => a.idx - b.idx);
+}
+// Everything the post-ride report needs
+function rideReport(rec) {
+  const ftp = rec.ftp || 250, smp = rec.samples || [];
+  const segs = rec.segs || (rec.workout && !rec.free ? flatten(rec.workout, ftp, null).segs : []);
+  const sum = rec.summary || summarize(smp, ftp);
+  const kj = smp.reduce((a, s) => a + (s[1] || 0), 0) / 1000;
+  const goalKJ = rec.free ? (rec.kjGoal || null) : (rec.plannedKJ ?? (segs.length ? plannedKJ(segs) : null));
+  const scores = rec.free ? [] : intervalScores(smp, segs);
+  const work = scores.filter(s => s.type === 'interval' || s.type === 'steady');
+  const graded = work.length ? work : scores;
+  return {
+    ftp, segs, sum, kj, goalKJ, kjPct: goalKJ ? kj / goalKJ : null,
+    secs: smp.length, plannedSec: rec.free ? null : rec.plannedSec, timePct: rec.free || !rec.plannedSec ? null : smp.length / rec.plannedSec,
+    zones: timeInZones(smp, ftp), peaks: peakPowers(smp), scores,
+    hits: graded.filter(s => s.hit).length, graded: graded.length, accPct: graded.length ? graded.filter(s => s.hit).length / graded.length : null,
+    maxW: sum.max, kcal: Math.round(kj / 0.24 / 4.184),
+  };
+}
+function smooth(arr, win) { const out = []; let s = 0, n = 0; const q = [];
+  for (const v of arr) { q.push(v); if (v != null) { s += v; n++; } if (q.length > win) { const o = q.shift(); if (o != null) { s -= o; n--; } } out.push(n ? s / n : null); }
+  return out; }
+
+// samples: [[t, power, target, cadence, speed, intervalIdx], ...] at 1 Hz
 function summarize(samples, ftp) {
   const pw = samples.map(s => s[1]).filter(v => v !== null && v !== undefined);
   const cad = samples.map(s => s[3]).filter(v => v !== null && v !== undefined && v > 0);
@@ -583,7 +694,7 @@ function stravaDescription(ride) {
   return bits.join(' · ');
 }
 
-if (typeof module !== 'undefined') module.exports = { STRAVA, stravaAuthUrl, stravaNeedsRefresh, stravaDuplicateId, stravaDescription, buildTCX, tcxFileName, UUID, parseFeatures, parsePowerRange, parseIndoorBikeData, parseControlResponse, parseMachineStatus, cmdRequestControl, cmdReset, cmdStart, cmdSetTargetPower, flatten, targetAt, validateWorkout, fmtTime, parseMMSS, summarize, judgeStep, judgeVerification, toWatts };
+if (typeof module !== 'undefined') module.exports = { segKJ, plannedKJ, plannedKJAt, plannedTSS, ZONES, zoneOf, timeInZones, peakPowers, intervalScores, rideReport, smooth, STRAVA, stravaAuthUrl, stravaNeedsRefresh, stravaDuplicateId, stravaDescription, buildTCX, tcxFileName, UUID, parseFeatures, parsePowerRange, parseIndoorBikeData, parseControlResponse, parseMachineStatus, cmdRequestControl, cmdReset, cmdStart, cmdSetTargetPower, flatten, targetAt, validateWorkout, fmtTime, parseMMSS, summarize, judgeStep, judgeVerification, toWatts };
 </script>
 
 <!-- ======================================================================
@@ -959,6 +1070,8 @@ const player = {
     if (!segs.length) return;
     if (!this._startingFree) this.free = false;
     Object.assign(this, { active: true, paused: false, pauseReason: '', workout, segs, total, idx: 0, segT: 0, elapsed: 0, samples: [], sampleAcc: 0, pwSum: 0, pwN: 0, ergOn, softFrom: null, lowCadSince: null, cadOkSince: null, rideId: uid(), startedAt: new Date().toISOString(), lastSentTarget: null, lastAutosave: now() });
+    this.plannedKJ = this.free ? null : plannedKJ(segs);
+    this.kjGoal = this.free ? (settings.freeKj || null) : null;
     this.lastTick = now();
     this.beginSoft(Math.min(segs[0].startW, settings.pauseW + 40));
     this.timer = setInterval(() => this.tick(), 250);
@@ -1005,7 +1118,7 @@ const player = {
         this.sampleAcc -= 1;
         const stale = teleStale();
         if (!stale && tele.power != null) { this.pwSum += tele.power; this.pwN++; }
-        this.samples.push([this.samples.length, stale ? null : tele.power, this.lastSentTarget ?? this.baseTarget(), stale ? null : tele.cadence, stale ? null : tele.speed]);
+        this.samples.push([this.samples.length, stale ? null : tele.power, this.lastSentTarget ?? this.baseTarget(), stale ? null : tele.cadence, stale ? null : tele.speed, this.idx]);
       }
       while (this.active && this.segT >= this.seg().dur) {
         this.segT -= this.seg().dur; this.idx++;
@@ -1080,7 +1193,8 @@ const player = {
   async save(final, completed) {
     if (!this.samples.length) return;
     const sum = summarize(this.samples, settings.ftp);
-    const rec = { id: this.rideId, date: this.startedAt, name: this.workout.name, ftp: settings.ftp, erg: this.ergOn, completed: !!completed, final: !!final, plannedSec: this.free ? this.samples.length : this.total, workout: this.workout, free: !!this.free, summary: sum, samples: this.samples };
+    const rec = { id: this.rideId, date: this.startedAt, name: this.workout.name, ftp: settings.ftp, erg: this.ergOn, completed: !!completed, final: !!final, plannedSec: this.free ? this.samples.length : this.total, workout: this.workout, free: !!this.free, plannedKJ: this.plannedKJ, kjGoal: this.kjGoal,
+      segs: this.segs.map(s => ({ label: s.label, type: s.type, dur: s.dur, start: s.start, startW: s.startW, endW: s.endW })), summary: sum, samples: this.samples };
     try { const old = await DB.get(rec.id); if (old && old.strava) rec.strava = old.strava; } catch (e) { }
     try { await DB.put(rec); } catch (e) { log('Saving ride failed: ' + e.message, 'bad'); }
     return rec;
@@ -1105,7 +1219,12 @@ function showDone(completed) {
   const r = player.lastRide(), s = r.summary;
   $('doneTitle').textContent = player.free ? 'Free ride saved' : completed ? 'Workout complete' : 'Workout ended';
   $('freeW').value = settings.freeW || $('freeW').value;
-  $('doneStats').textContent = r.samples.length ? `${r.name} · ${fmtTime(s.dur)} · avg ${s.avg} W · NP ${s.np} W · ${s.kj} kJ · TSS ${s.tss}` : 'No data was recorded.';
+  const rec = player._finalRec;
+  $('doneStats').textContent = rec ? `${rec.name} · ${new Date(rec.date).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}` : 'No data was recorded.';
+  $('doneReport').innerHTML = ''; if (rec) renderReport($('doneReport'), rec);
+  $('doneShare').disabled = !rec; $('doneShare').onclick = () => shareRideCard(rec);
+  document.body.classList.toggle('report', !!rec);
+  setTimeout(() => $('doneCard').scrollIntoView({ block: 'start' }), 50);
   $('doneTcx').disabled = !r.samples.length;
   $('doneTcx').onclick = () => exportTCX(player._finalRec || r);
   $('doneStravaMsg').textContent = ''; $('doneStravaMsg').className = '';
@@ -1216,7 +1335,7 @@ function updateRideUI() {
   $('rCad').textContent = teleStale() || tele.cadence == null ? '–' : Math.round(tele.cadence);
   $('rSpeed').textContent = teleStale() || tele.speed == null ? '–' : tele.speed.toFixed(1);
   if (!P.active) {
-    $('rTarget').textContent = '–'; $('rErg').textContent = ''; $('rSegLeft').textContent = '–'; $('rSegOf').textContent = ''; $('rTotLeft').textContent = '–'; $('rElapsed').textContent = ''; $('rKj').textContent = '–'; $('nextLine').textContent = 'Next: —';
+    $('rTarget').textContent = '–'; $('rErg').textContent = ''; $('rSegLeft').textContent = '–'; $('rSegOf').textContent = ''; $('rTotLeft').textContent = '–'; $('rElapsed').textContent = ''; $('rKj').textContent = '–'; $('rKjBar').style.display = 'none'; $('rKjOf').textContent = 'kJ'; $('nextLine').textContent = 'Next: —';
     return;
   }
   const s = P.seg();
@@ -1227,7 +1346,22 @@ function updateRideUI() {
   else if (ergc.lastAckW === P.lastSentTarget) ergTxt = `ERG ✓ bike set ${ergc.lastAckW} W`;
   else ergTxt = `ERG … waiting for bike (${ergc.lastResult || 'sent'})`;
   $('rErg').textContent = ergTxt; $('rErg').className = 's ' + (!P.ergOn ? 'c-warn' : ergc.lastAckW === P.lastSentTarget ? 'c-ok' : 'c-warn');
-  $('rKj').textContent = Math.round(P.pwSum / 1000);
+  { const kj = P.pwSum / 1000, goal = P.free ? P.kjGoal : P.plannedKJ;
+    $('rKj').textContent = Math.round(kj);
+    $('rKjBar').style.display = goal ? '' : 'none';
+    if (goal) {
+      const pct = kj / goal;
+      $('rKjFill').style.width = Math.min(100, pct * 100) + '%';
+      $('rKjBar').classList.toggle('done', pct >= 1);
+      let ofTxt = `of ${Math.round(goal)} · ${Math.round(pct * 100)}%`;
+      if (!P.free) {
+        const planNow = plannedKJAt(P.segs, s.start + P.segT), d = Math.round(kj - planNow);
+        $('rKjPace').style.display = ''; $('rKjPace').style.left = Math.min(100, planNow / goal * 100) + '%';
+        ofTxt += ` · ${d >= 0 ? '+' : ''}${d} vs plan`;
+      } else $('rKjPace').style.display = 'none';
+      $('rKjOf').textContent = ofTxt;
+    } else $('rKjOf').textContent = 'kJ';
+  }
   $('rSegLeftLbl').textContent = P.free ? 'Ride time' : 'Interval left';
   $('rTotLbl').textContent = P.free ? 'Avg power' : 'Total left';
   if (P.free) {
@@ -1285,7 +1419,7 @@ function renderRideSelect() {
   sel.innerHTML = workouts.map(w => `<option value="${w.id}">${escapeHtml(w.name)}</option>`).join('');
   if (workouts.some(w => w.id === cur)) sel.value = cur;
   const w = workouts.find(x => x.id === sel.value);
-  if (w) { const f = flatten(w, settings.ftp, bike.powerRange); $('rideMeta').textContent = `${fmtTime(f.total)} · ${f.segs.length} intervals · FTP ${settings.ftp} W`; if (!player.active) renderProfile($('profile'), f.segs, f.total); }
+  if (w) { const f = flatten(w, settings.ftp, bike.powerRange); $('rideMeta').textContent = `${fmtTime(f.total)} · ${f.segs.length} intervals · ${Math.round(plannedKJ(f.segs))} kJ · TSS ${plannedTSS(f.segs, settings.ftp)} · FTP ${settings.ftp} W`; if (!player.active) renderProfile($('profile'), f.segs, f.total); }
   const reasons = [];
   if (!bike.connected) reasons.push('bike not connected');
   if (!$('noErg').checked) {
@@ -1315,6 +1449,10 @@ function renderBuilderSelect() {
   $('bSelect').innerHTML = workouts.map(w => `<option value="${w.id}">${escapeHtml(w.name)}</option>`).join('');
   if (draft && workouts.some(w => w.id === draft.id)) $('bSelect').value = draft.id;
 }
+function stepKJ(s) {
+  const a = toWatts(+s.from || 0, s.unit, settings.ftp), b = (s.to === null || s.to === '' || s.to === undefined) ? a : toWatts(+s.to, s.unit, settings.ftp);
+  return Math.round((a + b) / 2 * (+s.dur || 0) / 1000);
+}
 function stepHtml(s, path) {
   const p = path.join('.');
   const opts = ['warmup', 'steady', 'interval', 'recovery', 'cooldown'].map(t => `<option value="${t}" ${s.type === t ? 'selected' : ''}>${TYPE_LABEL[t]}</option>`).join('');
@@ -1324,7 +1462,7 @@ function stepHtml(s, path) {
     <label>Target <input type="number" data-f="from" value="${s.from}" min="0"></label>
     <select data-f="unit"><option value="ftp" ${s.unit === 'ftp' ? 'selected' : ''}>% FTP</option><option value="w" ${s.unit === 'w' ? 'selected' : ''}>W</option></select>
     <label>ramp to <input type="number" data-f="to" value="${s.to ?? ''}" min="0" placeholder="—"></label>
-    <span class="muted">${s.unit === 'ftp' ? '≈ ' + toWatts(s.from, 'ftp', settings.ftp) + (s.to !== null && s.to !== '' ? '→' + toWatts(s.to, 'ftp', settings.ftp) : '') + ' W' : ''}</span>
+    <span class="muted">${s.unit === 'ftp' ? '≈ ' + toWatts(s.from, 'ftp', settings.ftp) + (s.to !== null && s.to !== '' ? '→' + toWatts(s.to, 'ftp', settings.ftp) : '') + ' W · ' : ''}<b style="color:var(--fg)">${stepKJ(s)} kJ</b></span>
     <span style="margin-left:auto"></span>
     <button class="btn sm" data-act="up">↑</button><button class="btn sm" data-act="down">↓</button><button class="btn sm stop" data-act="del">✕</button>
   </div></div>`;
@@ -1335,7 +1473,7 @@ function renderBuilder() {
   let h = '';
   draft.blocks.forEach((b, i) => {
     if (b.kind === 'repeat') {
-      h += `<div class="blk repeat" data-path="${i}"><div class="row"><b>Repeat</b> <input type="number" data-f="count" value="${b.count}" min="1" style="width:70px"> <b>×</b>
+      h += `<div class="blk repeat" data-path="${i}"><div class="row"><b>Repeat</b> <input type="number" data-f="count" value="${b.count}" min="1" style="width:70px"> <b>×</b> <span class="muted">= <b style="color:var(--fg)">${b.steps.reduce((a, s) => a + stepKJ(s), 0) * (+b.count || 1)} kJ</b></span>
         <span style="margin-left:auto"></span><button class="btn sm" data-act="addstep">+ step</button><button class="btn sm" data-act="up">↑</button><button class="btn sm" data-act="down">↓</button><button class="btn sm stop" data-act="del">✕</button></div>`;
       b.steps.forEach((s, j) => h += stepHtml(s, [i, j]));
       h += '</div>';
@@ -1344,7 +1482,7 @@ function renderBuilder() {
   $('bBlocks').innerHTML = h || '<p class="muted">No blocks yet.</p>';
   const f = flatten(draft, settings.ftp, null);
   renderProfile($('bProfile'), f.segs, f.total);
-  $('bSummary').textContent = `${fmtTime(f.total)} · ${f.segs.length} intervals`;
+  $('bSummary').innerHTML = `${fmtTime(f.total)} · ${f.segs.length} intervals · <b style="color:var(--fg)">${Math.round(plannedKJ(f.segs))} kJ planned</b> · TSS ${plannedTSS(f.segs, settings.ftp)} · IF ${f.total ? (summarize(f.segs.flatMap(s => Array.from({ length: s.dur }, (_, i) => [0, targetAt(s, i)])), settings.ftp).np / settings.ftp).toFixed(2) : '–'}`;
 }
 function getByPath(path) { const [i, j] = path.split('.').map(Number); return j === undefined ? { arr: draft.blocks, idx: i, obj: draft.blocks[i] } : { arr: draft.blocks[i].steps, idx: j, obj: draft.blocks[i].steps[j] }; }
 $('bBlocks').addEventListener('change', e => {
@@ -1581,7 +1719,7 @@ async function renderHistory() {
     const act = e.target.dataset.h; if (!act) return;
     const id = e.target.closest('tr').dataset.id; const r = rides.find(x => x.id === id);
     if (act === 'del') { if (await ask('Delete this ride?', 'Delete')) { await DB.del(id); renderHistory(); $('hDetail').style.display = 'none'; } }
-    if (act === 'csv') download(`ride-${r.date.slice(0, 16).replace(/[:T]/g, '-')}.csv`, 'sec,power_w,target_w,cadence_rpm,speed_kmh\n' + r.samples.map(s => s.map(v => v ?? '').join(',')).join('\n'), 'text/csv');
+    if (act === 'csv') download(`ride-${r.date.slice(0, 16).replace(/[:T]/g, '-')}.csv`, 'sec,power_w,target_w,cadence_rpm,speed_kmh,interval\n' + r.samples.map(s => s.map(v => v ?? '').join(',')).join('\n'), 'text/csv');
     if (act === 'tcx') exportTCX(r);
     if (act === 'strava') { e.target.disabled = true; e.target.textContent = 'Uploading…'; await uploadToStrava(r); renderHistory(); }
     if (act === 'view') showRide(r);
@@ -1592,14 +1730,163 @@ function exportTCX(r) {
   download(tcxFileName(r), buildTCX(r), 'application/vnd.garmin.tcx+xml');
 }
 function showRide(r) {
-  $('hDetail').style.display = ''; $('hTitle').textContent = `${r.name} · ${new Date(r.date).toLocaleString()} · avg ${r.summary.avg} W · NP ${r.summary.np} W · TSS ${r.summary.tss}`;
-  const svg = $('hChart'); const n = r.samples.length; if (!n) return;
-  const maxP = Math.max(100, ...r.samples.map(s => Math.max(s[1] || 0, s[2] || 0))) * 1.05;
-  svg.setAttribute('viewBox', `0 0 ${n} 100`);
-  const line = (k, sc) => r.samples.map((s, i) => s[k] == null ? null : `${i},${(100 - s[k] / sc * 100).toFixed(1)}`).filter(Boolean).join(' ');
-  svg.innerHTML = `<polyline points="${line(2, maxP)}" fill="none" stroke="#ffd21f" stroke-width="2" vector-effect="non-scaling-stroke"/>
-    <polyline points="${line(3, 150)}" fill="none" stroke="#3fa9ff" stroke-width="1" vector-effect="non-scaling-stroke" opacity=".7"/>
-    <polyline points="${line(1, maxP)}" fill="none" stroke="#fff" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
+  $('hDetail').style.display = '';
+  $('hTitle').textContent = `${r.name} · ${new Date(r.date).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
+  renderReport($('hReport'), r);
+  $('hShare').onclick = () => shareRideCard(r);
+  $('hDetail').scrollIntoView({ behavior: 'smooth' });
+}
+$('hClose').onclick = () => $('hDetail').style.display = 'none';
+
+/* ---------------- Post-ride report ---------------- */
+let repSeq = 0;
+function ringsSvg(rings, centerBig, centerSmall) {
+  let h = '<svg viewBox="0 0 200 200" role="img" aria-label="Completion rings">';
+  if (!rings.length) rings = [{ col: 'url(#rg' + repSeq + ')', pct: 1, solid: true }];
+  h += `<defs><linearGradient id="rg${repSeq}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF2D8A"/><stop offset="1" stop-color="#8F5BFF"/></linearGradient></defs>`;
+  rings.forEach((r, i) => {
+    const rad = 88 - i * 22, C = 2 * Math.PI * rad, f = Math.max(0, Math.min(1, r.pct));
+    h += `<circle cx="100" cy="100" r="${rad}" fill="none" stroke="#1c1c1c" stroke-width="16"/>`;
+    if (f > 0) h += `<circle cx="100" cy="100" r="${rad}" fill="none" stroke="${r.col}" stroke-width="16" stroke-linecap="round" stroke-dasharray="${(C * f).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 100 100)"/>`;
+  });
+  const cy = rings.length > 2 ? 100 : 100;
+  h += `<text x="100" y="${cy + 4}" text-anchor="middle" fill="#fff" font-size="${rings.length > 2 ? 26 : 34}" font-weight="900" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial">${centerBig}</text>`;
+  h += `<text x="100" y="${cy + 22}" text-anchor="middle" fill="#9a9a9a" font-size="11" font-weight="800" letter-spacing="1.5" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial">${centerSmall}</text>`;
+  return h + '</svg>';
+}
+function reportRings(R) {
+  const rings = [];
+  if (R.kjPct != null) rings.push({ key: 'Energy', col: '#FF2D8A', pct: R.kjPct, main: `${Math.round(R.kj)} / ${Math.round(R.goalKJ)} kJ` });
+  if (R.timePct != null) rings.push({ key: 'Time', col: '#8F5BFF', pct: R.timePct, main: `${fmtTime(R.secs)} / ${fmtTime(R.plannedSec)}` });
+  if (R.accPct != null) rings.push({ key: 'On target', col: '#2ee66b', pct: R.accPct, main: `${R.hits} / ${R.graded} intervals` });
+  return rings;
+}
+function reportHeadline(R) {
+  const bits = [];
+  if (R.kjPct != null) bits.push(R.kjPct >= 0.995 ? `Full dose: ${Math.round(R.kjPct * 100)}% of the planned work` : `${Math.round(R.kjPct * 100)}% of the planned ${Math.round(R.goalKJ)} kJ`);
+  if (R.graded) bits.push(R.hits === R.graded ? `every interval within ±5%` : `${R.hits} of ${R.graded} intervals within ±5%`);
+  const zi = R.zones.indexOf(Math.max(...R.zones)); if (R.secs) bits.push(`most time in ${ZONES[zi].name} (${Math.round(R.zones[zi] / R.secs * 100)}%)`);
+  const s = bits.join(' · '); return s ? s[0].toUpperCase() + s.slice(1) + '.' : '';
+}
+function zoneGradStops(maxW, ftp) {
+  // hard-edged vertical gradient: colour of the line tells you the zone
+  let st = '', lo = 0;
+  ZONES.forEach(z => { const hi = Math.min(1, (z.hi === Infinity ? 1e9 : z.hi * ftp) / maxW); if (lo < 1) { st += `<stop offset="${lo}" stop-color="${z.c}"/><stop offset="${hi}" stop-color="${z.c}"/>`; } lo = hi; });
+  return st;
+}
+function renderReport(el, rec) {
+  repSeq++;
+  const R = rideReport(rec), s = R.sum, smp = rec.samples || [], n = smp.length;
+  const rings = reportRings(R);
+  const tile = (k, v, u) => `<div class="stat"><div class="k">${k}</div><div class="n">${v}</div><div class="u">${u || '&nbsp;'}</div></div>`;
+  let h = '<div class="rep">';
+  h += `<div class="rep-top"><div class="rings">${ringsSvg(rings, Math.round(R.kj), 'KJ')}<div class="ringleg">` +
+    (rings.length ? rings.map(r => `<div><div class="k" style="color:${r.col}">${r.key}</div><div class="n">${r.main}</div><div class="p">${Math.round(r.pct * 100)}%</div></div>`).join('')
+      : `<div><div class="k" style="color:#FF2D8A">Energy</div><div class="n">${Math.round(R.kj)} kJ</div><div class="p">set a kJ goal to track completion</div></div>`) + '</div></div>';
+  h += '<div class="stats">' + tile('Time', fmtTime(R.secs)) + tile('Energy', Math.round(R.kj), `kJ · ≈${R.kcal} kcal`) + tile('Avg power', s.avg, 'W') + tile('Normalized', s.np, 'W') +
+    tile('Intensity', s.IF ? s.IF.toFixed(2) : '–', 'IF') + tile('Load', s.tss, 'TSS') + tile('Cadence', s.cad || '–', 'rpm avg') + tile('Max', R.maxW, 'W') + '</div></div>';
+  const hl = reportHeadline(R); if (hl) h += `<p style="font-size:18px;font-weight:800;margin:14px 0 0">${escapeHtml(hl)}</p>`;
+
+  // power chart
+  if (n > 1) {
+    const step = Math.max(1, Math.ceil(n / 600)), p5 = smooth(smp.map(x => x[1]), 5), pts = [], tps = [];
+    for (let i = 0; i < n; i += step) { const sl = p5.slice(i, i + step).filter(v => v != null); pts.push(sl.length ? mean(sl) : null); const t = smp.slice(i, i + step).map(x => x[2]).filter(v => v != null); tps.push(t.length ? mean(t) : null); }
+    const maxW = Math.max(R.ftp * 1.3, ...pts.filter(v => v != null), ...tps.filter(v => v != null)) * 1.05;
+    const X = i => (i / Math.max(1, pts.length - 1) * 1000).toFixed(1), Y = w => (200 - w / maxW * 200).toFixed(1);
+    const line = pts.map((v, i) => v == null ? null : `${X(i)},${Y(v)}`).filter(Boolean).join(' ');
+    const tgt = tps.map((v, i) => `${X(i)},${Y(v ?? 0)}`).join(' ');
+    const gid = 'zg' + repSeq;
+    h += `<h3>Power vs target</h3><div class="pchart"><svg viewBox="0 0 1000 200" preserveAspectRatio="none">
+      <defs><linearGradient id="${gid}" gradientUnits="userSpaceOnUse" x1="0" y1="200" x2="0" y2="0">${zoneGradStops(maxW, R.ftp)}</linearGradient></defs>
+      <polygon points="0,200 ${tgt} 1000,200" fill="rgba(255,255,255,.09)" stroke="rgba(255,255,255,.35)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+      <polygon points="0,200 ${line} 1000,200" fill="url(#${gid})" opacity=".22"/>
+      <polyline points="${line}" fill="none" stroke="url(#${gid})" stroke-width="2.2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+      <line x1="0" x2="1000" y1="${Y(R.ftp)}" y2="${Y(R.ftp)}" stroke="#fff" stroke-dasharray="5 5" opacity=".45" vector-effect="non-scaling-stroke"/></svg>
+      <span class="ftp" style="top:${(6 + (1 - R.ftp / maxW) * 190 - 15).toFixed(0)}px">FTP ${R.ftp} W</span>
+      <span class="ax" style="left:8px">0:00</span><span class="ax" style="left:50%;transform:translateX(-50%)">${fmtTime(n / 2)}</span><span class="ax" style="right:8px">${fmtTime(n)}</span></div>
+      <p class="muted" style="margin:6px 0 0">Line = your power (5 s avg), coloured by zone · grey = target.</p>`;
+  }
+  // zones
+  if (n) {
+    h += '<h3>Time in zones</h3><div class="zbar">' + R.zones.map((t, i) => t ? `<i style="width:${(t / n * 100).toFixed(2)}%;background:${ZONES[i].c}" title="${ZONES[i].n}"></i>` : '').join('') + '</div><div class="zrows">' +
+      R.zones.map((t, i) => t ? `<span><i style="background:${ZONES[i].c}"></i><b>${ZONES[i].n}</b> ${ZONES[i].name} · ${fmtTime(t)} · ${Math.round(t / n * 100)}%</span>` : '').join('') + '</div>';
+  }
+  // peaks
+  const pk = R.peaks, lbl = { 5: '5 s', 60: '1 min', 300: '5 min', 1200: '20 min' };
+  if (Object.keys(pk).length) h += '<h3>Peak power</h3><div class="peaks">' + Object.keys(pk).map(d => tile(lbl[d], pk[d], `W · ${(pk[d] / R.ftp * 100).toFixed(0)}% FTP`)).join('') + '</div>';
+  // interval scorecard
+  if (R.scores.length) {
+    const mx = Math.max(...R.scores.map(x => Math.max(x.avg, x.target))) * 1.08;
+    h += '<h3>Interval scorecard</h3>' + R.scores.map(x => {
+      const pct = Math.round(x.dev * 100), col = x.hit ? 'var(--ok)' : Math.abs(x.dev) <= 0.1 ? 'var(--warn)' : 'var(--bad)';
+      return `<div class="iv"><div><b>${escapeHtml(x.label)}</b>${x.cut ? ' <span class="muted">cut</span>' : ''}</div>
+        <div class="bar"><i style="width:${(x.avg / mx * 100).toFixed(1)}%;background:${ZONES[zoneOf(x.avg, R.ftp)].c}"></i><b style="left:${(x.target / mx * 100).toFixed(1)}%"></b></div>
+        <div class="r">${x.avg}<span class="muted">/${x.target} W</span> <b style="color:${col}">${pct > 0 ? '+' : ''}${pct}%${x.hit ? ' ✓' : ''}</b></div></div>`;
+    }).join('') + '<p class="muted" style="margin:6px 0 0">Bar = your average (first 10 s of each interval ignored) · white tick = target · ✓ within ±5%.</p>';
+  }
+  el.innerHTML = h + '</div>';
+}
+
+/* ---------------- Shareable ride card (PNG) ---------------- */
+async function shareRideCard(rec) {
+  if (!rec || !rec.samples || !rec.samples.length) return;
+  const make = async withLogo => {
+    const R = rideReport(rec), s = R.sum, W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d'), F = (w, z, it) => `${it ? 'italic ' : ''}${w} ${z}px -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+    const grad = (x0, y0, x1, y1) => { const q = g.createLinearGradient(x0, y0, x1, y1); q.addColorStop(0, '#FF2D8A'); q.addColorStop(1, '#8F5BFF'); return q; };
+    g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+    g.fillStyle = grad(0, 0, W, 0); g.fillRect(0, 0, W, 14); g.fillRect(0, H - 14, W, 14);
+    if (withLogo) { const img = new Image(); img.src = document.querySelector('link[rel=icon]').href; await img.decode(); g.drawImage(img, 60, 64, 96, 96); }
+    g.save(); g.translate(withLogo ? 176 : 60, 140); g.transform(1, 0, -0.14, 1, 0, 0); g.font = F(900, 78, true); g.fillStyle = grad(0, 0, 300, 0); g.fillText('GRIFT', 0, 0); g.restore();
+    g.fillStyle = '#fff'; g.font = F(800, 22, true); g.fillText('POWER · INTERVALS · NOTHING ELSE', withLogo ? 180 : 64, 172);
+    g.font = F(900, 58); g.fillText(rec.name.length > 28 ? rec.name.slice(0, 27) + '…' : rec.name, 60, 270);
+    g.fillStyle = '#9a9a9a'; g.font = F(700, 30); g.fillText(new Date(rec.date).toLocaleString([], { weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' }), 60, 318);
+    // rings
+    const rings = reportRings(R), cx = 260, cy = 560;
+    (rings.length ? rings : [{ col: grad(cx - 190, cy - 190, cx + 190, cy + 190), pct: 1 }]).forEach((r, i) => {
+      const rad = 190 - i * 48; g.lineWidth = 34; g.lineCap = 'round';
+      g.strokeStyle = '#1c1c1c'; g.beginPath(); g.arc(cx, cy, rad, 0, Math.PI * 2); g.stroke();
+      const f = Math.max(0, Math.min(1, r.pct)); if (f > 0) { g.strokeStyle = r.col; g.beginPath(); g.arc(cx, cy, rad, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * f); g.stroke(); }
+    });
+    g.textAlign = 'center'; g.fillStyle = '#fff'; g.font = F(900, rings.length > 2 ? 56 : 76); g.fillText(Math.round(R.kj), cx, cy + 14);
+    g.fillStyle = '#9a9a9a'; g.font = F(800, 24); g.fillText('KJ', cx, cy + 50); g.textAlign = 'left';
+    let ly = 420;
+    (rings.length ? rings : [{ key: 'Energy', col: '#FF2D8A', main: Math.round(R.kj) + ' kJ', pct: null }]).forEach(r => {
+      g.fillStyle = r.col; g.font = F(800, 26); g.fillText(r.key.toUpperCase(), 520, ly);
+      g.fillStyle = '#fff'; g.font = F(900, 46); g.fillText(r.main, 520, ly + 52);
+      if (r.pct != null) { g.fillStyle = '#9a9a9a'; g.font = F(700, 28); g.fillText(Math.round(r.pct * 100) + '%', 520, ly + 90); }
+      ly += 128;
+    });
+    // stats grid
+    const st = [['TIME', fmtTime(R.secs)], ['AVG POWER', s.avg + ' W'], ['NORMALIZED', s.np + ' W'], ['TSS', s.tss], ['IF', s.IF ? s.IF.toFixed(2) : '–'], ['CADENCE', (s.cad || '–') + ' rpm']];
+    st.forEach(([k, v], i) => {
+      const x = 60 + (i % 3) * 330, y = 800 + Math.floor(i / 3) * 140;
+      g.fillStyle = '#111'; g.strokeStyle = '#333'; g.lineWidth = 2; g.beginPath(); g.roundRect ? g.roundRect(x, y, 310, 120, 16) : g.rect(x, y, 310, 120); g.fill(); g.stroke();
+      g.fillStyle = '#9a9a9a'; g.font = F(800, 22); g.fillText(k, x + 22, y + 40);
+      g.fillStyle = '#fff'; g.font = F(900, 50); g.fillText(String(v), x + 22, y + 98);
+    });
+    // mini chart
+    const n = rec.samples.length, p5 = smooth(rec.samples.map(x => x[1]), 10), top = 1100, bot = 1268, left = 60, right = W - 60;
+    const maxW = Math.max(R.ftp * 1.3, ...p5.filter(v => v != null)) * 1.05, X = i => left + (right - left) * i / Math.max(1, n - 1), Y = w => bot - (bot - top) * Math.min(1, w / maxW);
+    g.fillStyle = 'rgba(255,255,255,.09)'; g.beginPath(); g.moveTo(left, bot); rec.samples.forEach((x, i) => g.lineTo(X(i), Y(x[2] || 0))); g.lineTo(right, bot); g.closePath(); g.fill();
+    const zg = g.createLinearGradient(0, bot, 0, bot - (bot - top) * 1); let lo = 0;
+    ZONES.forEach(z => { const hi = Math.min(1, (z.hi === Infinity ? 1e9 : z.hi * R.ftp) / maxW); if (lo < 1) { zg.addColorStop(lo, z.c); zg.addColorStop(hi, z.c); } lo = hi; });
+    g.strokeStyle = zg; g.lineWidth = 4; g.lineJoin = 'round'; g.beginPath(); let started = false;
+    p5.forEach((v, i) => { if (v == null) return; if (!started) { g.moveTo(X(i), Y(v)); started = true; } else g.lineTo(X(i), Y(v)); }); g.stroke();
+    let zx = left; R.zones.forEach((t, i) => { if (!t) return; const w = (right - left) * t / n; g.fillStyle = ZONES[i].c; g.fillRect(zx, 1284, w, 12); zx += w; });
+    g.fillStyle = '#9a9a9a'; g.font = F(700, 22); g.fillText(`Zones ↑ · best 5 min ${R.peaks[300] ? R.peaks[300] + ' W' : '–'} · max ${R.maxW} W · FTP ${R.ftp} W`, 60, 1324);
+    return new Promise((res, rej) => { try { c.toBlob(b => b ? res(b) : rej(new Error('no image')), 'image/png'); } catch (e) { rej(e); } });
+  };
+  let blob; try { blob = await make(true); } catch (e) { blob = await make(false); }
+  const d = new Date(rec.date), p2 = x => String(x).padStart(2, '0');
+  await shareBlob(`Grift ${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())} ${String(rec.name).replace(/×/g, 'x').replace(/[^\w\- ]+/g, '')}.png`, blob);
+}
+async function shareBlob(name, blob) {
+  if (IS_IOS && navigator.share && window.File) {
+    try { const f = new File([blob], name, { type: blob.type }); if (!navigator.canShare || navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], title: name }); return; } }
+    catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
 /* ---------------- Wiring ---------------- */
@@ -1618,9 +1905,9 @@ $('btnVerifyAbort').onclick = () => verify.abort = true;
 $('btnCopyLog').onclick = () => { navigator.clipboard && navigator.clipboard.writeText(logLines.join('\n')).then(() => log('Log copied.')); };
 $('rideWorkout').onchange = renderRideSelect;
 $('noErg').onchange = renderRideSelect;
-$('doneClose').onclick = () => $('doneCard').classList.remove('on');
+$('doneClose').onclick = () => { $('doneCard').classList.remove('on'); document.body.classList.remove('report'); };
 $('btnStart').onclick = () => {
-  $('doneCard').classList.remove('on');
+  $('doneCard').classList.remove('on'); document.body.classList.remove('report');
   const w = workouts.find(x => x.id === $('rideWorkout').value); if (!w) return;
   beep(1); // unlock audio on user gesture
   player.start(w, !$('noErg').checked);
@@ -1628,10 +1915,13 @@ $('btnStart').onclick = () => {
 $('btnPause').onclick = () => player.paused ? player.resume(false) : player.pause('user');
 $('btnSkip').onclick = () => player.skip();
 $('freeW').value = settings.freeW || Math.round(settings.ftp * 0.6 / 5) * 5;
+$('freeKj').value = settings.freeKj || '';
+$('freeKj').onchange = () => { const v = +$('freeKj').value; settings.freeKj = v > 0 ? Math.round(v) : null; saveSettings(); };
 $('btnFree').onclick = () => {
+  $('freeKj').onchange();
   const w = +$('freeW').value;
   if (!(w >= 0)) { tell('Enter a starting target in watts.'); return; }
-  $('doneCard').classList.remove('on');
+  $('doneCard').classList.remove('on'); document.body.classList.remove('report');
   beep(1);
   player.startFree(w, !$('noErg').checked);
 };
