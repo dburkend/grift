@@ -789,7 +789,7 @@ async function connect() {
   const optionalServices = [UUID.FTMS, UUID.CPS, UUID.DIS, UUID.BATTERY];
   const opts = $('showAll').checked
     ? { acceptAllDevices: true, optionalServices }
-    : { filters: [{ services: [UUID.FTMS] }, { namePrefix: 'Wattbike' }, { namePrefix: 'ATOM' }], optionalServices };
+    : { filters: [{ services: [UUID.FTMS] }, ...['Wattbike', 'WATTBIKE', 'wattbike', 'Atom', 'ATOM', 'atom', 'WB'].map(p => ({ namePrefix: p }))], optionalServices };
   connMsg('Looking for bikes… pick your Wattbike from the list.');
   try {
     let dev;
@@ -804,7 +804,7 @@ async function connect() {
     dev.addEventListener('gattserverdisconnected', onDisconnected);
     log(`Selected device "${dev.name || '(no name)'}" id=${dev.id}`);
     await setupGatt();
-    connMsg(bike.connected ? 'Connected ✓' : '', bike.connected ? 'ok' : null);
+    if (bike.connected) connMsg('Connected ✓', 'ok');
   } catch (e) {
     const name = e && e.name, msg = (e && e.message) || String(e);
     log(`Connect cancelled/failed: ${name}: ${msg}`, 'bad'); updateBadge();
@@ -835,7 +835,12 @@ async function setupGatt() {
   let ftms;
   try { ftms = await bike.server.getPrimaryService(UUID.FTMS); }
   catch (e) {
-    log('FTMS service (0x1826) NOT found. This bike/firmware cannot be controlled with this app. Update firmware via Wattbike Hub and make sure no other app is connected.', 'bad');
+    const found = [];
+    for (const [k, u] of [['Cycling Power', UUID.CPS], ['Device Info', UUID.DIS], ['Battery', UUID.BATTERY]]) { try { await bike.server.getPrimaryService(u); found.push(k); } catch (x) { } }
+    log(`FTMS service NOT found on "${dev.name || '(no name)'}" (${e.name}: ${e.message}). Other services found: ${found.join(', ') || 'none'}.`, 'bad');
+    connMsg(`Connected to <b>${escapeHtml(dev.name || 'this device')}</b>, but it doesn’t offer the standard trainer-control service (FTMS). ` +
+      (found.includes('Cycling Power') ? 'It looks like a power meter only — is this the Atom? ' : '') +
+      'On a first-generation Atom this usually means old firmware: open the Wattbike Hub app, start a “Just Ride” to install the latest firmware, close the Hub, then try again here.', 'high');
     renderDevInfo(); updateBadge('NO FTMS', 'bad'); return;
   }
   log('FTMS service found.', 'ok');
