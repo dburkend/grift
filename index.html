@@ -305,6 +305,7 @@ body.report #segName,body.report #ride .grid,body.report #freeCtl,body.report #n
     <div class="row">
       <label>Workout <select id="rideWorkout"></select></label>
       <span id="rideMeta" class="muted"></span>
+      <div id="rideNotes" class="muted" style="flex-basis:100%;display:none"></div>
       <button class="btn go" id="btnStart">Start workout</button>
       <label><input type="checkbox" id="noErg"> Ride without ERG (targets shown only, bike stays in manual)</label>
     </div>
@@ -758,6 +759,33 @@ const DEFAULTS = [
 let workouts = LS.get('workouts', null);
 if (!workouts || !workouts.length) { workouts = JSON.parse(JSON.stringify(DEFAULTS)); LS.set('workouts', workouts); }
 function saveWorkouts() { LS.set('workouts', workouts); }
+// Workout library: library.json in the site (pushed from GitHub) is merged into this device's workouts on load.
+async function syncLibrary() {
+  if (player.active || location.protocol === 'file:') return;
+  let data;
+  try { const r = await fetch('library.json', { cache: 'no-store' }); if (!r.ok) return; data = await r.json(); }
+  catch (e) { return; }
+  const lib = (Array.isArray(data) ? data : data.workouts || []).filter(w => w && w.id && !validateWorkout(w).length);
+  const ids = new Set(lib.map(w => w.id)), added = [], updated = [];
+  for (const w of lib) {
+    const copy = JSON.parse(JSON.stringify(w)); copy.lib = true;
+    const i = workouts.findIndex(x => x.id === w.id);
+    if (i < 0) { workouts.push(copy); added.push(copy); }
+    else if (workouts[i].lib && JSON.stringify(workouts[i]) !== JSON.stringify(copy)) { workouts[i] = copy; updated.push(copy); }
+    // a library workout you've edited and saved (lib:false) is yours now and is left alone
+  }
+  const before = workouts.length;
+  workouts = workouts.filter(w => !w.lib || ids.has(w.id));            // library workouts removed from the site go away
+  if (!added.length && !updated.length && before === workouts.length) return;
+  if (!workouts.length) workouts = JSON.parse(JSON.stringify(DEFAULTS));
+  saveWorkouts();
+  renderBuilderSelect(); renderRideSelect();
+  if (added.length) { $('rideWorkout').value = added[added.length - 1].id; renderRideSelect(); }
+  const msg = [added.length ? 'New: ' + added.map(w => w.name).join(', ') : '', updated.length ? 'Updated: ' + updated.map(w => w.name).join(', ') : ''].filter(Boolean).join(' · ');
+  log('Workout library — ' + (msg || 'removed old library workouts'), 'ok');
+  if (added.length || updated.length) setAlertOnce((added.length ? 'New workout ready: ' + added[added.length - 1].name : 'Workout updated: ' + updated[0].name) + ' (Ride tab)');
+}
+function setAlertOnce(t) { if (player.active) return; const a = $('alertBar'); a.textContent = t; a.className = 'on warn'; setTimeout(() => { if (!player.active && a.textContent === t) setAlert(''); }, 10000); }
 
 /* ---------------- Bluetooth / FTMS ---------------- */
 const bike = {
@@ -1446,9 +1474,12 @@ function renderProfile(svg, segs, total) {
 
 function renderRideSelect() {
   const sel = $('rideWorkout'); const cur = sel.value;
-  sel.innerHTML = workouts.map(w => `<option value="${w.id}">${escapeHtml(w.name)}</option>`).join('');
+  const opt = w => `<option value="${w.id}">${escapeHtml(w.name)}</option>`;
+  const lib = workouts.filter(w => w.lib), mine = workouts.filter(w => !w.lib);
+  sel.innerHTML = lib.length ? `<optgroup label="Library (built for you)">${lib.map(opt).join('')}</optgroup><optgroup label="My workouts">${mine.map(opt).join('')}</optgroup>` : mine.map(opt).join('');
   if (workouts.some(w => w.id === cur)) sel.value = cur;
   const w = workouts.find(x => x.id === sel.value);
+  $('rideNotes').style.display = w && w.notes ? '' : 'none'; $('rideNotes').textContent = w && w.notes ? w.notes : '';
   if (w) { const f = flatten(w, settings.ftp, bike.powerRange); $('rideMeta').textContent = `${fmtTime(f.total)} · ${f.segs.length} intervals · ${Math.round(plannedKJ(f.segs))} kJ · TSS ${plannedTSS(f.segs, settings.ftp)} · FTP ${settings.ftp} W`; if (!player.active) renderProfile($('profile'), f.segs, f.total); }
   const reasons = [];
   if (!bike.connected) reasons.push('bike not connected');
@@ -1543,13 +1574,14 @@ $('bName').oninput = e => { draft.name = e.target.value; $('bMsg').textContent =
 $('bSave').onclick = () => {
   const errs = validateWorkout(draft);
   if (errs.length) { $('bMsg').innerHTML = '<span class="c-high">' + errs.map(escapeHtml).join(' · ') + '</span>'; return; }
+  draft.lib = false; // once you edit a library workout it becomes yours and library updates won't overwrite it
   const i = workouts.findIndex(w => w.id === draft.id);
   if (i >= 0) workouts[i] = JSON.parse(JSON.stringify(draft)); else workouts.push(JSON.parse(JSON.stringify(draft)));
   saveWorkouts(); renderBuilderSelect(); renderRideSelect(); $('bMsg').textContent = 'Saved ✓';
 };
 $('bSelect').onchange = e => loadDraft(e.target.value);
 $('bNew').onclick = () => { draft = { id: uid(), name: 'New workout', blocks: [S('warmup', 600, 'ftp', 45, 75), S('cooldown', 300, 'ftp', 55, 40)] }; renderBuilder(); $('bMsg').textContent = 'Unsaved — click Save'; };
-$('bDup').onclick = () => { draft = JSON.parse(JSON.stringify(draft)); draft.id = uid(); draft.name += ' (copy)'; renderBuilder(); $('bMsg').textContent = 'Unsaved copy — click Save'; };
+$('bDup').onclick = () => { draft = JSON.parse(JSON.stringify(draft)); draft.id = uid(); draft.lib = false; draft.name += ' (copy)'; renderBuilder(); $('bMsg').textContent = 'Unsaved copy — click Save'; };
 $('bDel').onclick = async () => {
   if (!(await ask(`Delete "${draft.name}"?`, 'Delete'))) return;
   workouts = workouts.filter(w => w.id !== draft.id); if (!workouts.length) workouts = JSON.parse(JSON.stringify(DEFAULTS));
@@ -1986,7 +2018,8 @@ $('iosHint').classList.toggle('on', IS_IOS);
 if (!(document.documentElement.requestFullscreen && document.fullscreenEnabled)) $('btnFull').style.display = 'none';
 layoutRideCtl();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(e => log('Offline cache unavailable: ' + e.message, 'warn'));
-renderErgBadge(); updateButtons(); loadDraft(workouts[0].id); renderHistory(); renderStrava(); handleStravaRedirect();
+renderErgBadge(); updateButtons(); loadDraft(workouts[0].id); renderHistory(); renderStrava(); handleStravaRedirect(); syncLibrary();
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncLibrary(); });
 log('Grift ready. ' + (('bluetooth' in navigator) ? 'Click "Connect Wattbike Atom".' : 'This browser has no Web Bluetooth.'));
 </script>
 </body>
