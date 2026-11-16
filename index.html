@@ -307,6 +307,7 @@ body.report #segName,body.report #ride .grid,body.report #freeCtl,body.report #n
       <span id="rideMeta" class="muted"></span>
       <div id="rideNotes" class="muted" style="flex-basis:100%;display:none"></div>
       <button class="btn go" id="btnStart">Start workout</button>
+      <button class="btn sm stop" id="btnDelWorkout" title="Delete this workout">Delete</button>
       <label><input type="checkbox" id="noErg"> Ride without ERG (targets shown only, bike stays in manual)</label>
     </div>
     <div id="startBlock" class="muted" style="margin-top:6px"></div>
@@ -348,6 +349,7 @@ body.report #segName,body.report #ride .grid,body.report #freeCtl,body.report #n
       <button class="btn sm" id="bNew">New</button>
       <button class="btn sm" id="bDup">Duplicate</button>
       <button class="btn sm stop" id="bDel">Delete</button>
+      <button class="btn sm" id="bRestore" style="display:none">Restore deleted library workouts</button>
       <button class="btn sm" id="bExport">Export all (JSON)</button>
       <label class="btn sm" style="color:var(--fg)">Import JSON<input type="file" id="bImport" accept=".json,application/json" hidden></label>
     </div>
@@ -765,7 +767,8 @@ async function syncLibrary() {
   let data;
   try { const r = await fetch('library.json', { cache: 'no-store' }); if (!r.ok) return; data = await r.json(); }
   catch (e) { return; }
-  const lib = (Array.isArray(data) ? data : data.workouts || []).filter(w => w && w.id && !validateWorkout(w).length);
+  const hidden = new Set(LS.get('libHidden', []));
+  const lib = (Array.isArray(data) ? data : data.workouts || []).filter(w => w && w.id && !hidden.has(w.id) && !validateWorkout(w).length);
   const ids = new Set(lib.map(w => w.id)), added = [], updated = [];
   for (const w of lib) {
     const copy = JSON.parse(JSON.stringify(w)); copy.lib = true;
@@ -1489,6 +1492,7 @@ function renderRideSelect() {
     else if (bike.connected && !ergVerifiedForThisBike()) reasons.push('ERG was verified on a different bike or firmware — re-run verification');
   }
   $('btnStart').disabled = reasons.length > 0 || player.active;
+  $('btnDelWorkout').disabled = player.active || !workouts.length;
   $('btnFree').disabled = reasons.length > 0 || player.active;
   $('startBlock').innerHTML = reasons.length ? '<span class="c-warn">Can’t start: ' + reasons.join('; ') + '.</span>' : '';
 }
@@ -1582,11 +1586,20 @@ $('bSave').onclick = () => {
 $('bSelect').onchange = e => loadDraft(e.target.value);
 $('bNew').onclick = () => { draft = { id: uid(), name: 'New workout', blocks: [S('warmup', 600, 'ftp', 45, 75), S('cooldown', 300, 'ftp', 55, 40)] }; renderBuilder(); $('bMsg').textContent = 'Unsaved — click Save'; };
 $('bDup').onclick = () => { draft = JSON.parse(JSON.stringify(draft)); draft.id = uid(); draft.lib = false; draft.name += ' (copy)'; renderBuilder(); $('bMsg').textContent = 'Unsaved copy — click Save'; };
-$('bDel').onclick = async () => {
-  if (!(await ask(`Delete "${draft.name}"?`, 'Delete'))) return;
-  workouts = workouts.filter(w => w.id !== draft.id); if (!workouts.length) workouts = JSON.parse(JSON.stringify(DEFAULTS));
-  saveWorkouts(); loadDraft(workouts[0].id); renderRideSelect();
-};
+// Delete a workout on this device. Library workouts are remembered as deleted so the next sync doesn't bring them back.
+async function deleteWorkout(id) {
+  const w = workouts.find(x => x.id === id); if (!w) return false;
+  if (!(await ask(`Delete “${w.name}”?` + (w.lib ? ' It came from your library — it will stay deleted on this device.' : ''), 'Delete'))) return false;
+  if (w.lib) { const hid = new Set(LS.get('libHidden', [])); hid.add(w.id); LS.set('libHidden', [...hid]); }
+  workouts = workouts.filter(x => x.id !== id); if (!workouts.length) workouts = JSON.parse(JSON.stringify(DEFAULTS));
+  saveWorkouts(); log(`Deleted workout: ${w.name}`);
+  if (!draft || draft.id === id || !workouts.some(x => x.id === draft.id)) loadDraft(workouts[0].id); else renderBuilder();
+  renderRideSelect(); renderRestore(); return true;
+}
+function renderRestore() { const n = LS.get('libHidden', []).length; $('bRestore').style.display = n ? '' : 'none'; $('bRestore').textContent = `Restore ${n} deleted library workout${n === 1 ? '' : 's'}`; }
+$('bDel').onclick = () => deleteWorkout(draft.id);
+$('btnDelWorkout').onclick = () => { if (!player.active) deleteWorkout($('rideWorkout').value); };
+$('bRestore').onclick = async () => { LS.set('libHidden', []); renderRestore(); await syncLibrary(); };
 $('bExport').onclick = () => download('grift-workouts.json', JSON.stringify(workouts, null, 2), 'application/json');
 $('bImport').onchange = async e => {
   const file = e.target.files[0]; if (!file) return;
@@ -2018,7 +2031,7 @@ $('iosHint').classList.toggle('on', IS_IOS);
 if (!(document.documentElement.requestFullscreen && document.fullscreenEnabled)) $('btnFull').style.display = 'none';
 layoutRideCtl();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(e => log('Offline cache unavailable: ' + e.message, 'warn'));
-renderErgBadge(); updateButtons(); loadDraft(workouts[0].id); renderHistory(); renderStrava(); handleStravaRedirect(); syncLibrary();
+renderErgBadge(); updateButtons(); loadDraft(workouts[0].id); renderHistory(); renderStrava(); handleStravaRedirect(); syncLibrary(); renderRestore();
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncLibrary(); });
 log('Grift ready. ' + (('bluetooth' in navigator) ? 'Click "Connect Wattbike Atom".' : 'This browser has no Web Bluetooth.'));
 </script>
