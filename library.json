@@ -6,13 +6,97 @@
       "name": "8×5 min @ 280 W · 90 min",
       "notes": "20 min warm-up 130→170 W · 8 × (5 min @ 280 W / 2 min @ 150 W) · 4 min @ 150 W · 10 min cool-down 170→130 W. Built by Claude, 16 Nov 2026.",
       "blocks": [
-        { "kind": "step", "type": "warmup", "dur": 1200, "unit": "w", "from": 130, "to": 170 },
-        { "kind": "repeat", "count": 8, "steps": [
-          { "kind": "step", "type": "interval", "dur": 300, "unit": "w", "from": 280, "to": null },
-          { "kind": "step", "type": "recovery", "dur": 120, "unit": "w", "from": 150, "to": null }
-        ] },
-        { "kind": "step", "type": "steady", "dur": 240, "unit": "w", "from": 150, "to": null },
-        { "kind": "step", "type": "cooldown", "dur": 600, "unit": "w", "from": 170, "to": 130 }
+        {
+          "kind": "step",
+          "type": "warmup",
+          "dur": 1200,
+          "unit": "w",
+          "from": 130,
+          "to": 170
+        },
+        {
+          "kind": "repeat",
+          "count": 8,
+          "steps": [
+            {
+              "kind": "step",
+              "type": "interval",
+              "dur": 300,
+              "unit": "w",
+              "from": 280,
+              "to": null
+            },
+            {
+              "kind": "step",
+              "type": "recovery",
+              "dur": 120,
+              "unit": "w",
+              "from": 150,
+              "to": null
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "type": "steady",
+          "dur": 240,
+          "unit": "w",
+          "from": 150,
+          "to": null
+        },
+        {
+          "kind": "step",
+          "type": "cooldown",
+          "dur": 600,
+          "unit": "w",
+          "from": 170,
+          "to": 130
+        }
+      ]
+    },
+    {
+      "id": "lib-2026-11-16-5x5-320",
+      "name": "5×5 min @ 320 W · 70 min",
+      "notes": "10 min warm-up 130→170 W · 5 × (5 min @ 320 W / 5 min @ 175 W) · 10 min cool-down 170→130 W. Built by Claude, 16 Nov 2026.",
+      "blocks": [
+        {
+          "kind": "step",
+          "type": "warmup",
+          "dur": 600,
+          "unit": "w",
+          "from": 130,
+          "to": 170
+        },
+        {
+          "kind": "repeat",
+          "count": 5,
+          "steps": [
+            {
+              "kind": "step",
+              "type": "interval",
+              "dur": 300,
+              "unit": "w",
+              "from": 320,
+              "to": null
+            },
+            {
+              "kind": "step",
+              "type": "recovery",
+              "dur": 300,
+              "unit": "w",
+              "from": 175,
+              "to": null
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "type": "cooldown",
+          "dur": 600,
+          "unit": "w",
+          "from": 170,
+          "to": 130
+        }
       ]
     }
   ]
