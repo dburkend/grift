@@ -1,4 +1,19 @@
 {
   "version": 1,
-  "workouts": []
+  "workouts": [
+    {
+      "id": "lib-2026-11-16-8x5-280",
+      "name": "8×5 min @ 280 W · 90 min",
+      "notes": "20 min warm-up 130→170 W · 8 × (5 min @ 280 W / 2 min @ 150 W) · 4 min @ 150 W · 10 min cool-down 170→130 W. Built by Claude, 16 Nov 2026.",
+      "blocks": [
+        { "kind": "step", "type": "warmup", "dur": 1200, "unit": "w", "from": 130, "to": 170 },
+        { "kind": "repeat", "count": 8, "steps": [
+          { "kind": "step", "type": "interval", "dur": 300, "unit": "w", "from": 280, "to": null },
+          { "kind": "step", "type": "recovery", "dur": 120, "unit": "w", "from": 150, "to": null }
+        ] },
+        { "kind": "step", "type": "steady", "dur": 240, "unit": "w", "from": 150, "to": null },
+        { "kind": "step", "type": "cooldown", "dur": 600, "unit": "w", "from": 170, "to": 130 }
+      ]
+    }
+  ]
 }
