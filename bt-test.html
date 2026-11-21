@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grift · Bluetooth test</title>
+<style>
+:root{--bg:#000;--panel:#111;--line:#333;--fg:#fff;--dim:#9a9a9a;--ok:#2ee66b;--warn:#ffd21f;--bad:#ff4d4d;--grad:linear-gradient(100deg,#FF2D8A,#8F5BFF)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;padding:calc(12px + env(safe-area-inset-top)) 16px 24px}
+h1{margin:0 0 4px;font-style:italic;font-weight:900;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block}
+p{color:var(--dim);margin:6px 0 12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+button{font:inherit;font-weight:800;padding:14px 18px;border-radius:10px;border:2px solid #555;background:#222;color:#fff;touch-action:manipulation}
+button.pri{background:var(--grad);border-color:transparent}
+button:disabled{opacity:.4}
+#out{background:#0b0b0b;border:1px solid var(--line);border-radius:10px;padding:10px;font:13px/1.45 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-word;min-height:200px}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}.dim{color:var(--dim)}
+#verdict{font-size:18px;font-weight:800;margin:12px 0;padding:12px;border-radius:10px;display:none}
+#verdict.ok{display:block;background:rgba(46,230,107,.12);border:1px solid var(--ok)}
+#verdict.bad{display:block;background:rgba(255,77,77,.12);border:1px solid var(--bad)}
+#verdict.warn{display:block;background:rgba(255,210,31,.12);border:1px solid var(--warn)}
+a{color:#b9a3ff}
+</style>
+</head>
+<body>
+<h1>GRIFT</h1> <b>Bluetooth test</b>
+<p>Close MyWhoosh, Zwift and the Wattbike Hub on every device, pedal a few strokes to wake the bike, then tap <b>Scan all devices</b> and pick your Atom. When it finishes, tap <b>Copy report</b> and paste it to Claude. Nothing here changes the bike except a brief resistance test you can skip.</p>
+<div class="row">
+  <button class="pri" id="scanAll">Scan all devices</button>
+  <button id="scanGrift">Scan with Grift's filter</button>
+  <button id="copy">Copy report</button>
+  <button id="disc" disabled>Disconnect</button>
+</div>
+<div id="verdict"></div>
+<div id="out"></div>
+<p><a href="./">← Back to Grift</a></p>
+<script>
+'use strict';
+const U = n => '0000' + n.toString(16).padStart(4, '0') + '-0000-1000-8000-00805f9b34fb';
+const SVC = { 'Fitness Machine (FTMS)': 0x1826, 'Cycling Power': 0x1818, 'Cycling Speed & Cadence': 0x1816, 'Heart Rate': 0x180d, 'Device Information': 0x180a, 'Battery': 0x180f };
+const CHR = { 0x2acc: 'FTMS Feature', 0x2ad2: 'Indoor Bike Data', 0x2ad9: 'FTMS Control Point', 0x2ada: 'Machine Status', 0x2ad3: 'Training Status', 0x2ad8: 'Supported Power Range', 0x2ad6: 'Supported Resistance Range',
+  0x2a63: 'Cycling Power Measurement', 0x2a65: 'Cycling Power Feature', 0x2a5d: 'Sensor Location', 0x2a66: 'CP Control Point', 0x2a29: 'Manufacturer', 0x2a24: 'Model', 0x2a27: 'Hardware rev', 0x2a26: 'Firmware rev', 0x2a28: 'Software rev', 0x2a19: 'Battery level', 0x2a5b: 'CSC Measurement', 0x2a37: 'Heart Rate Measurement' };
+const out = document.getElementById('out'), lines = [];
+let dev = null, server = null, found = {};
+function w(msg, cls) { const t = new Date().toLocaleTimeString(); const line = `[${t}] ${msg}`; lines.push(line); const d = document.createElement('div'); d.textContent = line; if (cls) d.className = cls; out.appendChild(d); }
+function verdict(text, cls) { const v = document.getElementById('verdict'); v.textContent = text; v.className = cls; }
+const short = uuid => { const m = String(uuid).match(/^0000([0-9a-f]{4})-0000-1000-8000-00805f9b34fb$/i); return m ? parseInt(m[1], 16) : null; };
+const hex = dv => Array.from(new Uint8Array(dv.buffer, dv.byteOffset, dv.byteLength)).map(b => b.toString(16).padStart(2, '0')).join(' ');
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const withTimeout = (p, ms, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(what + ' timed out after ' + ms / 1000 + ' s')), ms))]);
+
+function env() {
+  w('Page: ' + location.href);
+  w('Browser: ' + navigator.userAgent);
+  w('Secure context (https): ' + window.isSecureContext, window.isSecureContext ? 'ok' : 'bad');
+  w('navigator.bluetooth present: ' + ('bluetooth' in navigator), 'bluetooth' in navigator ? 'ok' : 'bad');
+  if ('bluetooth' in navigator && navigator.bluetooth.getAvailability) navigator.bluetooth.getAvailability().then(a => w('Bluetooth adapter available: ' + a, a ? 'ok' : 'bad')).catch(e => w('getAvailability error: ' + e.message, 'dim'));
+  if (!('bluetooth' in navigator)) verdict('This browser has no Bluetooth access. Open this page in the Bluefy app (not Safari/Chrome, and not a Home Screen icon added from Safari).', 'bad');
+}
+
+async function scan(useFilter) {
+  if (!('bluetooth' in navigator)) { env(); return; }
+  out.innerHTML = ''; lines.length = 0; found = {}; verdict('', ''); env();
+  const optionalServices = Object.values(SVC).map(U);
+  const opts = useFilter
+    ? { filters: [{ services: [U(0x1826)] }, ...['Wattbike', 'WATTBIKE', 'wattbike', 'Atom', 'ATOM', 'atom', 'WB'].map(p => ({ namePrefix: p }))], optionalServices }
+    : { acceptAllDevices: true, optionalServices };
+  w('--- Step 1: device picker (' + (useFilter ? "Grift's filter" : 'all devices') + ')');
+  try { dev = await navigator.bluetooth.requestDevice(opts); }
+  catch (e) {
+    w(`Picker ended: ${e.name}: ${e.message}`, 'bad');
+    if (e.name === 'NotFoundError') verdict(useFilter ? 'The Atom did not show up with Grift\'s filter. Try "Scan all devices" — if it shows there, tell Claude the exact name.' : 'No device was chosen. If the Atom was not in the list, it is probably connected to another app/device (it only allows one connection) or asleep — pedal to wake it and close other apps.', 'warn');
+    else verdict('The device picker failed: ' + e.name + ' — ' + e.message, 'bad');
+    return;
+  }
+  w(`Picked: name="${dev.name || '(none)'}" id=${dev.id}`, 'ok');
+  dev.addEventListener('gattserverdisconnected', () => w('Device disconnected (gattserverdisconnected event).', 'warn'));
+  w('--- Step 2: connect');
+  const t0 = performance.now();
+  try { server = await withTimeout(dev.gatt.connect(), 20000, 'GATT connect'); w(`Connected in ${Math.round(performance.now() - t0)} ms`, 'ok'); document.getElementById('disc').disabled = false; }
+  catch (e) { w(`Connect failed: ${e.name}: ${e.message}`, 'bad'); verdict('Picked the device but could not connect: ' + e.message + '. Usually another app still holds the connection, or the bike needs a power-cycle.', 'bad'); return; }
+
+  w('--- Step 3: services');
+  try { const all = await server.getPrimaryServices(); w('getPrimaryServices(): ' + (all.map(s => (short(s.uuid) != null ? '0x' + short(s.uuid).toString(16) : s.uuid)).join(', ') || 'none returned')); } catch (e) { w('getPrimaryServices() failed: ' + e.name + ': ' + e.message, 'dim'); }
+  for (const [name, n] of Object.entries(SVC)) {
+    try {
+      const s = await server.getPrimaryService(U(n)); found[n] = s;
+      w(`✓ ${name} (0x${n.toString(16)})`, 'ok');
+      try {
+        const cs = await s.getCharacteristics();
+        for (const c of cs) { const p = c.properties, sh = short(c.uuid); w(`    · ${sh != null ? (CHR[sh] || '0x' + sh.toString(16)) : c.uuid}  [${['read', 'write', 'writeWithoutResponse', 'notify', 'indicate'].filter(k => p[k]).join(', ')}]`); }
+      } catch (e) { w('    (could not list characteristics: ' + e.message + ')', 'dim'); }
+    } catch (e) { w(`✗ ${name} (0x${n.toString(16)}): ${e.name}`, 'dim'); }
+  }
+
+  if (found[0x180a]) {
+    w('--- Step 4: device information');
+    const dec = new TextDecoder();
+    for (const n of [0x2a29, 0x2a24, 0x2a27, 0x2a26, 0x2a28]) { try { const c = await found[0x180a].getCharacteristic(U(n)); w(`${CHR[n]}: ${dec.decode(await c.readValue()).replace(/\0/g, '').trim()}`); } catch (e) { } }
+  }
+
+  if (!found[0x1826]) {
+    verdict(found[0x1818] ? 'Connected, but this device has no FTMS (trainer-control) service — only Cycling Power. Either it is not the Atom, or the Atom needs a firmware update in the Wattbike Hub app.' : 'Connected, but this device has no FTMS (trainer-control) service. Make sure you picked the Atom; if so, update its firmware in the Wattbike Hub app.', 'bad');
+    w('No FTMS → Grift cannot control resistance on this device.', 'bad'); return;
+  }
+
+  w('--- Step 5: FTMS features');
+  const f = found[0x1826];
+  try {
+    const v = await (await f.getCharacteristic(U(0x2acc))).readValue();
+    const m = v.getUint32(0, true), t = v.byteLength >= 8 ? v.getUint32(4, true) : 0;
+    w(`Feature bytes: ${hex(v)}`);
+    w(`Power measurement: ${!!(m >> 14 & 1)} · Cadence: ${!!(m >> 1 & 1)} · Power target (ERG): ${!!(t >> 3 & 1)} · Sim mode: ${!!(t >> 13 & 1)}`, (t >> 3 & 1) ? 'ok' : 'bad');
+  } catch (e) { w('FTMS Feature read failed: ' + e.name + ': ' + e.message, 'bad'); }
+  try { const v = await (await f.getCharacteristic(U(0x2ad8))).readValue(); w(`Supported power range: ${v.getInt16(0, true)}–${v.getInt16(2, true)} W, step ${v.getUint16(4, true)}`); } catch (e) { w('Power range: not available', 'dim'); }
+
+  w('--- Step 6: live data for 8 s (pedal now!)');
+  let pk = 0, last = '';
+  try {
+    const c = await f.getCharacteristic(U(0x2ad2));
+    const h = ev => { const dv = ev.target.value; pk++; if (pk <= 3) w(`Indoor Bike Data #${pk}: ${hex(dv)}`); last = decodeIBD(dv); };
+    c.addEventListener('characteristicvaluechanged', h); await c.startNotifications();
+    for (let i = 8; i > 0; i--) { await sleep(1000); }
+    try { await c.stopNotifications(); } catch (e) { } c.removeEventListener('characteristicvaluechanged', h);
+    w(`Received ${pk} packets in 8 s. Last: ${last || '—'}`, pk ? 'ok' : 'bad');
+  } catch (e) { w('Indoor Bike Data subscribe failed: ' + e.name + ': ' + e.message, 'bad'); }
+
+  w('--- Step 7: request control (FTMS control point)');
+  let ctlOk = false;
+  try {
+    const cp = await f.getCharacteristic(U(0x2ad9));
+    let resp = null; const onR = ev => { resp = ev.target.value; };
+    cp.addEventListener('characteristicvaluechanged', onR); await cp.startNotifications();
+    const send = async bytes => { resp = null; const b = new Uint8Array(bytes); if (cp.writeValueWithResponse) await cp.writeValueWithResponse(b); else await cp.writeValue(b); for (let i = 0; i < 30 && !resp; i++) await sleep(100); return resp; };
+    const r = await send([0x00]);
+    if (!r) w('Request control: no reply within 3 s', 'bad');
+    else { const code = r.getUint8(2); ctlOk = code === 1; w(`Request control reply: ${hex(r)} → ${({ 1: 'Success', 2: 'Not supported', 3: 'Invalid parameter', 4: 'Failed', 5: 'Control not permitted' })[code] || code}`, ctlOk ? 'ok' : 'bad'); }
+    if (ctlOk) {
+      const r2 = await send([0x05, 120, 0]); // 120 W
+      w(`Set target 120 W reply: ${r2 ? hex(r2) : 'none'} → ${r2 && r2.getUint8(2) === 1 ? 'Success' : 'not accepted'}`, r2 && r2.getUint8(2) === 1 ? 'ok' : 'bad');
+      await send([0x01]); w('Sent reset (released control).');
+    }
+    cp.removeEventListener('characteristicvaluechanged', onR);
+  } catch (e) { w('Control point failed: ' + e.name + ': ' + e.message, 'bad'); }
+
+  if (ctlOk && pk) verdict('Everything works from this browser: Grift should be able to connect and control the bike. If Grift itself still fails, copy this report and the Grift connection log for Claude.', 'ok');
+  else if (pk && !ctlOk) verdict('Data is flowing but the bike refused control — another app is probably still connected, or the firmware does not support ERG over Bluetooth. Copy this report for Claude.', 'warn');
+  else verdict('Partial result — copy this report for Claude.', 'warn');
+}
+function decodeIBD(dv) {
+  try {
+    let o = 2; const f = dv.getUint16(0, true); const r = [];
+    if (!(f & 1)) { r.push('speed ' + (dv.getUint16(o, true) / 100).toFixed(1) + ' km/h'); o += 2; }
+    if (f & 2) o += 2;
+    if (f & 4) { r.push('cadence ' + dv.getUint16(o, true) / 2 + ' rpm'); o += 2; }
+    if (f & 8) o += 2; if (f & 16) o += 3; if (f & 32) o += 2;
+    if (f & 64) { r.push('power ' + dv.getInt16(o, true) + ' W'); }
+    return r.join(', ');
+  } catch (e) { return 'undecodable'; }
+}
+document.getElementById('scanAll').onclick = () => scan(false);
+document.getElementById('scanGrift').onclick = () => scan(true);
+document.getElementById('disc').onclick = () => { try { dev && dev.gatt.disconnect(); } catch (e) { } document.getElementById('disc').disabled = true; };
+document.getElementById('copy').onclick = async () => {
+  const text = 'GRIFT BLUETOOTH TEST\n' + (document.getElementById('verdict').textContent ? 'Verdict: ' + document.getElementById('verdict').textContent + '\n' : '') + lines.join('\n');
+  try { await navigator.clipboard.writeText(text); document.getElementById('copy').textContent = 'Copied ✓'; }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); document.getElementById('copy').textContent = 'Copied ✓'; } catch (x) { alert(text); } ta.remove(); }
+  setTimeout(() => document.getElementById('copy').textContent = 'Copy report', 2500);
+};
+env();
+</script>
+</body>
+</html>
